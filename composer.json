@@ -1,0 +1,28 @@
+{
+  "name": "mdevoldere/bulb",
+  "type": "project",
+  "version": "1.0.0",
+  "description": "Educational MVC PHP Framework",
+  "homepage": "https://devoldere.net",
+  "authors": [
+    {
+      "name": "M DEVOLDERE",
+      "email": "contact@devoldere.net"
+    }
+  ],
+  "minimum-stability": "stable",
+  "config": {
+    "vendor-dir": "Vendor",
+    "optimize-autoloader": true
+  },
+  "autoload": {
+    "psr-4": {
+      "Bulb\\":"Bulb/",
+      "BulbApp\\":"BulbApp/"
+    }
+  },
+  "require": {
+    "twig/twig": "^2.0",
+    "smarty/smarty": "~3.1"
+  }
+}
