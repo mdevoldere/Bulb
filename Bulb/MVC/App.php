@@ -4,6 +4,10 @@ namespace Bulb\MVC;
 
 use Bulb\Tools\Collection;
 
+/**
+ * Class App
+ * @package Bulb\MVC
+ */
 class App
 {
     /** @var string  */
@@ -12,11 +16,11 @@ class App
     /** @var string  */
     protected $dir;
 
-    /** @var  Router */
-    protected $router = null;
-
     /** @var Collection */
     protected $config;
+
+    /** @var  Request */
+    protected $request;
 
     /** @var View */
     protected $view = null;
@@ -49,16 +53,7 @@ class App
      */
     public function getRequest()
     {
-        return $this->getRouter()->getRequest();
-    }
-
-      /**
-     * @return Router
-     */
-    public function getRouter()
-    {
-        $this->router = $this->router ?: new Router(true);
-        return $this->router;
+        return $this->request;
     }
 
     /**
@@ -72,9 +67,10 @@ class App
 
     /**
      * @param $_name
+     * @param $_request
      * Constructor
      */
-    public function __construct($_name)
+    public function __construct($_name, Request $_request = null)
     {
         $this->name = \basename($_name);
 
@@ -90,6 +86,8 @@ class App
         {
             exit('App::'.$this->name.' not found !');
         }
+
+        $this->request = $_request ?: Request::getRequest();
     }
 
     public function createLayout()
@@ -109,17 +107,7 @@ class App
 
             $this->getView()->addGlobal('request', $this->getRequest());
                        
-            $n = 'BulbApp\\'.$this->name.'\\Controllers\\'.\mb_convert_case($this->getRequest()->getController(), MB_CASE_TITLE).'Controller';
-            
-            /** @var Controller $c */
-            $c = (new $n($this));
-
-            $a = ($this->getRequest()->getAction().'Action');
-
-            if(!\method_exists($c, $a))
-            {
-                throw new \InvalidArgumentException('Invalid action ['.$this->getRequest()->getAction().'] !');
-            }
+            $c = Router::getController($this);
 
             //exiter($c, 'App::run');
 

@@ -21,7 +21,7 @@ define('BULB_APP', BULB_ROOT.'BulbApp/');
 /** Bulb Cache Directory */
 define('BULB_CACHE', BULB_ROOT.'BulbCache/');
 
-/** Bulb Cache Directory */
+/** Bulb Config Directory */
 define('BULB_CONFIG', BULB_ROOT.'BulbConfig/');
 
 /** Bulb Public Web Directory */
@@ -39,7 +39,7 @@ if(\is_file(BULB_ROOT.'/Vendor/autoload.php'))
 
     if(defined('BULB_APPCURRENT'))
     {
-        $app = new \Musy\MVC\App(BULB_APPCURRENT);
+        $app = new \Bulb\MVC\App(BULB_APPCURRENT);
         $app->run();
         exit(BULB_APPCURRENT.': No App to display !');
     }

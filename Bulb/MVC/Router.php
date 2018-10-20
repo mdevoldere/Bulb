@@ -4,71 +4,58 @@ namespace Bulb\MVC;
 
 class Router
 {
-    protected $query = [];
 
-    /** @var  Request */
-    protected $request;
+    const DEFAULT_APP_NAMESPACE = 'BulbApp';
+
+    const DEFAULT_GET_KEY = 'url';
+
 
     /**
-     * @return Request
+     * Router constructor.
      */
-    public function getRequest()
+    private function __construct()
     {
-        $this->request = $this->request ?: new Request();
-        return $this->request;
+
     }
 
-    public function __construct($_parseUrl = false)
-    {
-        if($_parseUrl === true)
-            $this->parseUrl();
-        else
-            $this->setRoute();
-    }
 
-    public function parseUrl()
+    public static function go($prefix = '')
     {
-        \parse_str($_SERVER['QUERY_STRING'], $this->query);
-
-        if(\array_key_exists('url', $this->query)) 
+        if(!\headers_sent())
         {
-            $this->setRoute($this->query['url']);
+            \header(('location: '.$prefix.Request::getRequest()->getPath()));
+            exit();
         }
-
-        return $this;
     }
 
-    public function setRoute($route = null)
+    public static function getController(App $app)
     {
         try
         {
-            if(!\is_array($route))
+            $cName = self::DEFAULT_APP_NAMESPACE.'\\'.$app->getName().'\\Controllers\\'.\mb_convert_case($app->getRequest()->getController('Controller'), MB_CASE_TITLE);
+
+            $a = ($app->getRequest()->getAction('Action'));
+
+            /** @var Controller $cName */
+            $c = (new $cName($app));
+
+            if(!\method_exists($c, $a))
             {
-                $route = \explode('/', $route);
+                throw new \InvalidArgumentException('Bulb Router Error: Invalid action ['.$app->getRequest()->getAction().'] !');
             }
 
-            $this->getRequest()->setRequest(
-                (!empty($route[0]) ? $route[0] : null),
-                (!empty($route[1]) ? $route[1] : null),
-                (!empty($route[2]) ? $route[2] : null)
-            );
+            return $c;
         }
-        catch(\Exception $e)
+        catch (\Exception $e)
         {
-
+            exit('Bulb Router Fatal Error: '.$e->getCode());
         }
-
-        return $this;
     }
 
-    public function redirectTo($controller = null, $action = null, $id = null)
+    public static function getResponse(Controller $c)
     {
-        $this->getRequest()->setRequest($controller, $action, $id);
-        $this->getRequest()->go();
+
     }
 
-    public function go($prefix = '')
-    {
-        $this->getRequest()->go($prefix);
-    }
+
 }

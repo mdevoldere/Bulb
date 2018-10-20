@@ -1,0 +1,27 @@
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "*"
+</IfModule>
+
+#Options +FollowSymlinks
+RewriteEngine On
+
+#RewriteCond %{HTTP_HOST} ^www.domain.net$
+#RewriteRule ^(.*) http://domain.net/$1 [QSA,L,R=301]
+
+RewriteCond %{HTTPS} off
+RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI}
+
+RewriteRule ^contact/([0-9])$ /index.php?p=contact&subj=$1 [NC,L]
+
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !favicon.ico$
+RewriteRule ^([a-z,A-Z,0-9,-]+)([/]*)$ /index.php?p=$1 [QSA,L]
+
+RewriteRule ^tools([/]*)$ /tools/index.php [NC,L]
+
+#RewriteRule ^mike([/]*)$ /mike/index.php [NC,L]
+
+#RewriteRule ^extranet([/]*)$ /extranet/index.php [NC,L]
+
+#RewriteRule ^([a-z,A-Z,0-9,-]+)([/]*)$ /index.php?p=$1 [NC,L]

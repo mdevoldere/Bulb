@@ -4,10 +4,30 @@ namespace Bulb\Tools;
 
 class Collection
 {
-   public static function getCollection(Collection $c, $key = null)
-   {
+    public static function getCollection(Collection $c, $key = null)
+    {
         return ((null !== $key) ? $c->get($key) : $c->getItems());
-   }
+    }
+
+    public static function getArrayItem(array $a = [], $key = null, $subkey = null)
+    {
+        if($key === null)
+            return $a;
+
+        if(empty($a))
+            return null;
+
+        if(!\array_key_exists($key, $a))
+            return null;
+
+        if($subkey === null)
+            return $a[$key];
+
+        if(!\is_array($a[$key]))
+            return null;
+
+        return (\array_key_exists($subkey, $a[$key]) ? $a[$key][$subkey] : null);
+    }
 
     protected $items = [];
 
@@ -57,7 +77,7 @@ class Collection
         return $this;
     }
 
-    public function loadItems($path)
+    public function loadItems(string $path)
     {
         if(\is_file($path))
         {
