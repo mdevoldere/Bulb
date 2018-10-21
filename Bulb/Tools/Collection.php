@@ -29,6 +29,7 @@ class Collection
         return (\array_key_exists($subkey, $a[$key]) ? $a[$key][$subkey] : null);
     }
 
+
     protected $items = [];
 
     public function __construct($_collection = null)
@@ -41,7 +42,6 @@ class Collection
             }
             elseif(\is_string($_collection))
             {
-                //exiter($_collection);
                 $this->loadItems($_collection);
             }
         }
@@ -87,5 +87,4 @@ class Collection
         return $this;
     }
 
-    
 }

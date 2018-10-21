@@ -5,7 +5,7 @@ namespace Bulb\MVC;
 class Router
 {
 
-    const DEFAULT_APP_NAMESPACE = 'BulbApp';
+
 
     const DEFAULT_GET_KEY = 'url';
 
@@ -28,11 +28,11 @@ class Router
         }
     }
 
-    public static function getController(App $app)
+    public static function runController(App $app)
     {
         try
         {
-            $cName = self::DEFAULT_APP_NAMESPACE.'\\'.$app->getName().'\\Controllers\\'.\mb_convert_case($app->getRequest()->getController('Controller'), MB_CASE_TITLE);
+            $cName = ($app->getNamespace().'\\Controllers\\'.\mb_convert_case($app->getRequest()->getController('Controller'), MB_CASE_TITLE));
 
             $a = ($app->getRequest()->getAction('Action'));
 
@@ -44,7 +44,7 @@ class Router
                 throw new \InvalidArgumentException('Bulb Router Error: Invalid action ['.$app->getRequest()->getAction().'] !');
             }
 
-            return $c;
+            return $c->{$a}();
         }
         catch (\Exception $e)
         {

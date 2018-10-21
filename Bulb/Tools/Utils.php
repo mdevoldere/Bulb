@@ -32,6 +32,8 @@ class Utils
         {
             $g[] = \basename($f);
         }
+
+        return $g;
     }
 
 }

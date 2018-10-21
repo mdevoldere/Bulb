@@ -7,6 +7,7 @@ return
         'assets' => '/assets/',
 
         'theme' => 'theme-name',
+
         'containerClass' => 'container',
 
         'title' => 'Bulb',

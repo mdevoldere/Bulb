@@ -1,14 +1,8 @@
 <?php
-/**
- * Created by Devoldere.net.
- * User: Mickael DEVOLDERE <support@devoldere.net>
- */
-
 error_reporting(E_ALL | E_STRICT);
 ini_set("display_errors", 1);
 
 $dev_trace = 0;
-
 
 function devtrace($msg = null)
 {
@@ -57,37 +51,3 @@ function exiter($var, $title = null)
 {
     exit(\_exporter($var, $title));
 }
-/*
-function bulb_error_handler($no, $str, $file, $line)
-{
-    $e = new \Bulb\Core\Tools\Exception\Exception($str, $no);
-    $e->setFile($file, $line);
-    $e->kill();
-}
-*/
-/*function bulb_error_handler_old($no, $str, $file, $line)
-{
-    echo '<h2>Erreur ['.$no.']</h2><ul><li>Fichier : '.$file.'</li><li>Ligne '.$line.'</li></ul>';
-
-    switch($no){
-        case E_USER_ERROR : // Fatal
-            echo '<h3>Fatal Error</h3><p>'.$str.'</p>';
-            exiter(\Bulb\Loader::getLoaded(), 'autoLoad');
-            break;
-        case E_USER_WARNING : // Warning
-            echo '<h3>Warning</h3><p>'.$str.'</p>';
-            break;
-        case E_USER_NOTICE : // Notice
-            echo '<h3>Notice</h3><p>'.$str.'</p>';
-            break;
-        default:
-            echo '<h3>Error</h3><p>'.$str.'</p>';
-            exiter(\Bulb\Loader::getLoaded(), 'autoLoad');
-            break;
-    }
-}*/
-
-//\Bulb\Loader::getClass('\\Bulb\\Core\\Tools\\Exception\\Exception');
-
-//set_error_handler(['\\Bulb\\Core\\Tools\\Exception\\Exception', 'err']);
-//set_error_handler('bulb_error_handler');

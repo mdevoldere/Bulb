@@ -19,12 +19,14 @@ class View
     protected $env = null;
 
 
+    /**
+     * View constructor.
+     * @param $dir
+     */
     public function __construct($dir)
     {
         $this->rootPath = ($dir.'Views/');
     }
-
-
 
     /**
      * @return \Twig_LoaderInterface|\Twig_Loader_Filesystem

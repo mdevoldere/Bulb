@@ -10,8 +10,13 @@ use Bulb\Tools\Collection;
  */
 class App
 {
+    const DEFAULT_NAMESPACE = 'BulbApp';
+
     /** @var string  */
     protected $name;
+
+    /** @var string  */
+    protected $namespace;
 
     /** @var string  */
     protected $dir;
@@ -28,9 +33,17 @@ class App
     /**
      * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getNamespace(): string
+    {
+        return $this->namespace;
     }
 
     /**
@@ -41,17 +54,16 @@ class App
     {
         if(empty($this->config))
         {
-            //exiter($this->dir.'conf.php');
             $this->config = new Collection((\is_file($this->dir.'conf.php') ? ($this->dir.'conf.php') : (BULB_MVC.'conf.default.php')));
         }
 
-        return (null != $key) ? $this->config->get($key) : $this->config;
+        return (null !== $key) ? $this->config->get($key) : $this->config;
     }
 
     /**
      * @return Request
      */
-    public function getRequest()
+    public function getRequest() : Request
     {
         return $this->request;
     }
@@ -59,7 +71,7 @@ class App
     /**
      * @return View
      */
-    public function getView()
+    public function getView() : View
     {
         $this->view = $this->view ?: new View($this->dir);
         return $this->view;
@@ -76,21 +88,23 @@ class App
 
         if(\is_dir(BULB_APP.$this->name))
         {
-            $this->dir = BULB_APP.$this->name.'/';
+            $this->namespace = (App::DEFAULT_NAMESPACE.'\\'.$this->name.'\\');
+            $this->dir = (BULB_APP.$this->name.'/');
         }
-        elseif(\is_dir($_name))
+        elseif(\is_dir($_name) && !\is_dir(__DIR__.'/'.$this->name))
         {
-            $this->dir = $_name.'/';
+            $this->namespace = ('\\'.$this->name.'\\');
+            $this->dir = ($_name.'/');
         }
         else
         {
-            exit('App::'.$this->name.' not found !');
+            exit('App: Invalid App['.$this->name.']');
         }
 
         $this->request = $_request ?: Request::getRequest();
     }
 
-    public function createLayout()
+    public function createLayout() : Layout
     {
         $l = new Layout($this->getConfig('theme'));
 
@@ -107,11 +121,9 @@ class App
 
             $this->getView()->addGlobal('request', $this->getRequest());
                        
-            $c = Router::getController($this);
+            $out = Router::runController($this);
 
-            //exiter($c, 'App::run');
-
-            exit($c->{$a}()); // spit out method result
+            exit($out); // spit out method result
         }
         catch(\Exception $ex)
         {

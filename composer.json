@@ -1,13 +1,16 @@
 {
   "name": "mdevoldere/bulb",
-  "type": "project",
-  "version": "1.0.0",
+  "type": "library",
+  "version": "0.1.1-alpha",
   "description": "Educational MVC PHP Framework",
-  "homepage": "https://devoldere.net",
+  "keywords": ["educational","mvc","framework"],
+  "homepage": "https://github.com/mdevoldere/Bulb",
   "authors": [
     {
       "name": "M DEVOLDERE",
       "email": "contact@devoldere.net"
+      "homepage": "http://devoldere.net",
+      "role": "Developer"
     }
   ],
   "minimum-stability": "stable",
