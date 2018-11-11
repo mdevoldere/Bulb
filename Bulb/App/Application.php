@@ -29,7 +29,7 @@ class Application extends LocalDir
 
         $this->cache = Local::getLocalCache($this->name);
 
-        $this->instance = \trim($_instance);
+        $this->instance = \basename($_instance);
     }
 
     /**
