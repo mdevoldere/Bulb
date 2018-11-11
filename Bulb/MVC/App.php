@@ -2,7 +2,11 @@
 
 namespace Bulb\MVC;
 
-use Bulb\Tools\Collection;
+use Bulb\App\Application;
+use Bulb\Http\Request;
+use Bulb\Http\Router;
+use Bulb\Local\Collection;
+use Bulb\Local\LocalDir;
 
 /**
  * Class App
@@ -12,20 +16,19 @@ class App
 {
     const DEFAULT_NAMESPACE = 'BulbApp';
 
-    /** @var string  */
-    protected $name;
+    /** @var Application */
+    protected $application;
 
-    /** @var string  */
-    protected $namespace;
+    /** @var Router */
+    protected $router;
 
-    /** @var string  */
-    protected $dir;
-
-    /** @var Collection */
-    protected $config;
-
-    /** @var  Request */
-    protected $request;
+    /**
+     * @return Router
+     */
+    public function getRouter() : Router
+    {
+        return ($this->router = $this->router ?: new Router($this->getConfig('url')));
+    }
 
     /** @var View */
     protected $view = null;
@@ -35,7 +38,7 @@ class App
      */
     public function getName(): string
     {
-        return $this->name;
+        return $this->application->getName();
     }
 
     /**
@@ -43,29 +46,25 @@ class App
      */
     public function getNamespace(): string
     {
-        return $this->namespace;
+        return $this->application->getNamespace();
+    }
+
+    /**
+     * @return LocalDir
+     */
+    public function getCache(): LocalDir
+    {
+        return $this->application->getCache();
     }
 
     /**
      * @param $key
-     * @return array|mixed
+     * @param $default
+     * @return Collection|mixed
      */
-    public function getConfig($key = null)
+    public function getConfig($key = null, $default = null)
     {
-        if(empty($this->config))
-        {
-            $this->config = new Collection((\is_file($this->dir.'conf.php') ? ($this->dir.'conf.php') : (BULB_MVC.'conf.default.php')));
-        }
-
-        return (null !== $key) ? $this->config->get($key) : $this->config;
-    }
-
-    /**
-     * @return Request
-     */
-    public function getRequest() : Request
-    {
-        return $this->request;
+        return $this->application->getConfig($key, $default);
     }
 
     /**
@@ -73,35 +72,21 @@ class App
      */
     public function getView() : View
     {
-        $this->view = $this->view ?: new View($this->dir);
+        $this->view = $this->view ?: new View($this->application->getPath());
         return $this->view;
     }
 
     /**
-     * @param $_name
-     * @param $_request
+     * @param Application $_application
+     * @param Router $_router
      * Constructor
      */
-    public function __construct($_name, Request $_request = null)
+    public function __construct(Application $_application, Router $_router = null)
     {
-        $this->name = \basename($_name);
+        $this->application = $_application;
 
-        if(\is_dir(BULB_APP.$this->name))
-        {
-            $this->namespace = (App::DEFAULT_NAMESPACE.'\\'.$this->name.'\\');
-            $this->dir = (BULB_APP.$this->name.'/');
-        }
-        elseif(\is_dir($_name) && !\is_dir(__DIR__.'/'.$this->name))
-        {
-            $this->namespace = ('\\'.$this->name.'\\');
-            $this->dir = ($_name.'/');
-        }
-        else
-        {
-            exit('App: Invalid App['.$this->name.']');
-        }
-
-        $this->request = $_request ?: Request::getRequest();
+        if($_router !== null)
+            $this->router = $_router;
     }
 
     public function createLayout() : Layout
@@ -117,13 +102,23 @@ class App
     {
         try
         {
-            $this->getView()->prependPath($this->getRequest()->getController());
+            $this->getView()->prependPath($this->getRouter()->getController());
 
-            $this->getView()->addGlobal('request', $this->getRequest());
-                       
-            $out = Router::runController($this);
+            $this->getView()->addGlobal('request', Request::getRequest());
 
-            exit($out); // spit out method result
+            $c = $this->application->getControllerNamespace($this->getRouter()->getController());
+
+            $c = (new $c($this));
+
+            $a = ($this->getRouter()->getAction().'Action');
+
+            if(!\method_exists($c, $a))
+            {
+                throw new \InvalidArgumentException('BulbApp::InvalidAction['.$this->getRouter()->getAction().']');
+            }
+
+            echo $c->{$a}();
+            exit();
         }
         catch(\Exception $ex)
         {

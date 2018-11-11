@@ -8,7 +8,7 @@
   "authors": [
     {
       "name": "M DEVOLDERE",
-      "email": "contact@devoldere.net"
+      "email": "contact@devoldere.net",
       "homepage": "http://devoldere.net",
       "role": "Developer"
     }
@@ -20,8 +20,8 @@
   },
   "autoload": {
     "psr-4": {
-      "Bulb\\":"Bulb/",
-      "BulbApp\\":"BulbApp/"
+      "Bulb\\":"./",
+      "BulbApp\\":"../BulbApp/"
     }
   },
   "require": {

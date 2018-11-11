@@ -3,7 +3,7 @@
 namespace Bulb\MVC;
 
 
-use Bulb\Tools\Collection;
+use Bulb\Local\Collection;
 
 class Layout extends Collection
 {

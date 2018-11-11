@@ -1,4 +1,4 @@
 .idea/
-composer.lock
-composer.phar
-Vendor/
+Bulb/composer.lock
+Bulb/composer.phar
+Bulb/Vendor/
