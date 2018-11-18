@@ -1,6 +1,6 @@
 <?php
 
-namespace Bulb\MVC;
+namespace Bulb\App;
 
 
 use Bulb\Local\Collection;

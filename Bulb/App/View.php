@@ -1,6 +1,6 @@
 <?php
 
-namespace Bulb\MVC;
+namespace Bulb\App;
 
 
 class View
@@ -43,10 +43,10 @@ class View
     {
         if(null === $this->env)
         {
-            $loader = new \Twig_Loader_Filesystem([$this->rootPath, BULB_MVC.'Views/'], $this->rootPath);
+            $loader = new \Twig_Loader_Filesystem([$this->rootPath, BULB.'Views/'], $this->rootPath);
 
             $this->env = new \Twig_Environment($loader, array(
-                //'cache' => BULB_CACHE,
+                'cache' => BULB_CACHE.'Twig/',
                 'debug' => true,
             ));
         }

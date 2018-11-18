@@ -2,7 +2,7 @@
 
 namespace Bulb\Http;
 
-use Bulb\MVC\App;
+use Bulb\App\App;
 
 class Router
 {

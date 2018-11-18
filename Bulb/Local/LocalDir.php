@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Bulb\Local;
 
 
@@ -8,17 +7,41 @@ class LocalDir extends Local
 {
 
     /**
+     * LocalDir Objects Storage
+     * @var LocalDir[]
+     */
+    protected static $d = [];
+
+    /**
      * LocalFile Objects Storage
      * @var LocalFile[]
      */
     public static $f = [];
 
+    /**
+     * Get LocalPath Object ref to $_path
+     * @param string|null $_path
+     * @param bool $_create
+     * @return LocalDir if $_path exists
+     */
+    public static function getLocalDir(string $_path = null, bool $_create = false) : LocalDir
+    {
+        if(empty($_path))
+            exit('LocalDir::EmptyDir');
 
-    public static function getLocalFile(string $_path) : LocalFile
+        if(empty(static::$d[$_path]))
+        {
+            static::$d[$_path] = new LocalDir($_path, $_create);
+        }
+
+        return static::$d[$_path];
+    }
+
+    public static function getLocalFile(string $_path, bool $_loadAsCollection = false) : LocalFile
     {
         if(!\array_key_exists($_path, static::$f))
         {
-            static::$f[$_path] = new LocalFile($_path);
+            static::$f[$_path] = new LocalFile($_path, $_loadAsCollection);
         }
 
         return static::$f[$_path];
@@ -87,34 +110,37 @@ class LocalDir extends Local
     }
 
     /**
-     * @param null $filter
+     * @param string $_filename
+     * @param null|bool|mixed $_loadAsCollection
+     * @return Local
+     */
+    public function find($_filename, $_loadAsCollection = null) : Local
+    {
+        $_filename = ($this->path.\basename($_filename));
+
+        if(\is_dir($_filename))
+        {
+            return static::getLocalDir($_filename, false);
+        }
+
+        $_loadAsCollection = (($_loadAsCollection !== null) && ($_loadAsCollection !== false)) ? true : false;
+
+        return static::getLocalFile($_filename, $_loadAsCollection);
+    }
+
+    /**
+     * @param null $_filter
      * @return array
      */
-    public function glob($filter = null)
+    public function findAll($_filter = null) : array
     {
         if(!$this->exists)
             return [];
 
-        return static::globDir($this->path, $filter);
+        $this->items = static::globDir($this->path, $_filter);
+        return $this->items;
     }
 
-    /**
-     * @param string $_filename
-     * @return LocalFile
-     */
-    public function getFile(string $_filename) : LocalFile
-    {
-        $_filename = ($this->path.\basename($_filename));
 
-        return static::getLocalFile($_filename);
-    }
 
-    /**
-     * @param string $_filename
-     * @return bool
-     */
-    public function deleteFile(string $_filename) : bool
-    {
-        return $this->getFile($_filename)->delete();
-    }
 }

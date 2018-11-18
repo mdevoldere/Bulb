@@ -1,35 +1,45 @@
 <?php
 
-
 namespace Bulb\Local;
 
 
-class Collection
+/**
+ * Class Collection
+ * @package Bulb\Local
+ */
+class Collection extends Model implements ICollection
 {
     /** @var array $items */
     protected $items = [];
 
-    /** @var null|Collection */
+    /** @var null|IModel */
     protected $masterCollection = null;
 
     /**
-     * @param Collection|null $_masterCollection
+     * Collection constructor.
+     * @param string $_name
+     */
+    public function __construct(string $_name = 'Collection')
+    {
+        parent::__construct(0, $_name);
+    }
+
+    /**
+     * @param IModel|null $_masterCollection
      * @return $this
      */
-    public function setMasterCollection(Collection $_masterCollection = null)
+    public function setMasterCollection(IModel $_masterCollection = null)
     {
         $this->masterCollection = $_masterCollection;
         return $this;
     }
 
     /**
-     * Collection constructor.
-     * @param array $_collection
+     * @return int
      */
-    public function __construct($_collection = [])
+    public function count() : int
     {
-        if(!empty($_collection))
-            $this->updateAll($_collection);
+        return \count($this->items);
     }
 
     /**
@@ -43,26 +53,29 @@ class Collection
 
     /**
      * @param $key
-     * @param null $default
+     * @param null $loadAsCollection
      * @return mixed|null
      */
-    public function find($key, $default = null)
+    public function find($key, $loadAsCollection = null)
     {
         if(\array_key_exists($key, $this->items))
             return $this->items[$key];
 
         if($this->masterCollection !== null)
-            return $this->masterCollection->find($key, $default);
+            return $this->masterCollection->find($key, $loadAsCollection);
 
-        return $default;
+        return $loadAsCollection;
     }
 
     /**
-     * @param bool $_includeMaster
+     * @param null|mixed $_includeMaster
      * @return array
      */
-    public function findAll(bool $_includeMaster = true): array
+    public function findAll($_includeMaster = null) : array
     {
+        if($_includeMaster === null)
+            $_includeMaster = true;
+
         if(($_includeMaster === true) && ($this->masterCollection !== null))
         {
             $r = $this->items;
@@ -85,37 +98,17 @@ class Collection
      * @param $key
      * @param null $value
      * @param bool $_force
-     * @return $this
+     * @return bool
      */
-    public function update($key, $value = null, bool $_force = true)
+    public function update($key, $value = null, bool $_force = true) : bool
     {
         if(($_force === false) && \array_key_exists($key, $this->items))
-            return $this;
+            return false;
 
         $this->items[$key] = $value;
+        //exporter($this, '44');
 
-        return $this;
-    }
-
-    /**
-     * @param array|Collection $_collection
-     * @param bool $_force
-     * @return $this
-     */
-    public function updateAll($_collection = [], bool $_force = true)
-    {
-        if($_collection instanceof Collection)
-            $_collection = $_collection->findAll();
-
-        if(\is_array($_collection))
-        {
-            foreach($_collection as $k => $v)
-            {
-                $this->update($k, $v, $_force);
-            }
-        }
-
-        return $this;
+        return true;
     }
 
 }

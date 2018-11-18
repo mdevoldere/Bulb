@@ -1,6 +1,6 @@
 <?php
 
-namespace Bulb\MVC;
+namespace Bulb\App;
 
 
 class Response extends Request

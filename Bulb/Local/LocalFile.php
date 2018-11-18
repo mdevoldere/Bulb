@@ -2,7 +2,6 @@
 
 namespace Bulb\Local;
 
-
 class LocalFile extends Local
 {
 
@@ -12,8 +11,9 @@ class LocalFile extends Local
     /**
      * LocalFile constructor.
      * @param string $_path
+     * @param bool $_loadAsCollection
      */
-    public function __construct(string $_path)
+    public function __construct(string $_path, bool $_loadAsCollection = false)
     {
         parent::__construct($_path);
 
@@ -23,32 +23,64 @@ class LocalFile extends Local
         $this->path = $_path;
 
         $this->exists = \is_file($this->path);
+
+        if($_loadAsCollection)
+            $this->findAll();
     }
 
-    /**
-     * @return null|string
-     */
-    public function getContent()
+    public function findAll($_includeMaster = null) : array
     {
-        if($this->exists)
+        if(empty($this->items) && $this->isValid())
+        {
+            try
+            {
+                $a = (require $this->path);
+               // exporter($a, 'aaa');
+                $this->items = \is_array($a) ? $a : [];
+               // exporter($this, $this->name);
+            }
+            catch (\Exception $e)
+            {
+                \trigger_error($e->getMessage(), E_USER_ERROR);
+            }
+        }
+
+        return parent::findAll($_includeMaster);
+    }
+
+    public function toString($_filter = null) : string
+    {
+        if($this->isValid())
             return (\file_get_contents($this->path));
 
-        return null;
+        return '';
     }
 
+
     /**
-     * @param string $_data
+     * @param null|mixed $_data
      * @return int
      */
-    public function saveContent(string $_data = null) : int
+    public function save($_data = null) : int
     {
-        if(empty($_data))
-            $_data = '';
-
         try
         {
+            if(empty($_data))
+                $_data = !empty($this->items) ? $this->items : '';
+
+            if($_data instanceof IModel)
+                $_data = $_data->findAll();
+
+            if(\is_array($_data))
+                $_data = ('<?php return '.\var_export($_data, true).';');
+
+            if(!\is_string($_data) || empty($_data))
+                return 0;
+
             $r = \file_put_contents($this->path, $_data);
+
             $this->exists = true;
+
             return (($r !== false) ? $r : 0);
         }
         catch (\Exception $e)
@@ -58,60 +90,15 @@ class LocalFile extends Local
     }
 
     /**
-     * @return array
+     * @param null|mixed $_filter
+     * @return bool
      */
-    public function getArray() : array
+    public function delete($_filter = null) : bool
     {
-        return $this->getCollection()->findAll();
-    }
-
-    /**
-     * @return Collection
-     */
-    public function getCollection() : Collection
-    {
-        if($this->collection === null)
-        {
-            try
-            {
-                $a = (($this->exists) ? (require $this->path) : []);
-                $this->collection = new Collection((\is_array($a) ? $a : []));
-            }
-            catch (\Exception $e)
-            {
-                exit('LocalFile::InvalidCollection');
-            }
-        }
-
-        return $this->collection;
-    }
-
-    /**
-     * @param bool $_includeMaster
-     * @return int
-     */
-    public function saveCollection(bool $_includeMaster = false) : int
-    {
-        $this->getCollection();
-        return $this->saveContent(('<?php return '.\var_export($this->collection->findAll($_includeMaster), true).';'));
-    }
-
-    public function delete()
-    {
-        if($this->exists)
+        if($this->isValid())
             $this->exists = !(\unlink($this->path));
 
         return !$this->exists;
-    }
-
-    /**
-     * @param string $_path
-     * @return bool
-     */
-    public function copyTo(string $_path) : bool
-    {
-        $_path = new LocalFile($_path);
-        return ($this->exists ? \copy($this->path, $_path->getPath()) : false);
     }
 
 }

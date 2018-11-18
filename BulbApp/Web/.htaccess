@@ -1,25 +1,25 @@
-SetOutputFilter DEFLATE
-AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml application/x-javascript
+#SetOutputFilter DEFLATE
+#AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml application/x-javascript
 
-<IfModule mod_headers.c>
-    Header set Access-Control-Allow-Origin "*"
-
-    <FilesMatch "\\.(ico|jpe?g|png|gif|swf|txt|css|js|svg)$">
-        Header set Cache-Control "max-age=2592000, public"
-    </FilesMatch>
-
-    <FilesMatch "\\.(x?html?|php)$">
-        Header set Cache-Control "max-age=300, private, must-revalidate"
-    </FilesMatch>
-</IfModule>
+#<IfModule mod_headers.c>
+#    Header set Access-Control-Allow-Origin "*"
+#
+#    <FilesMatch "\\.(ico|jpe?g|png|gif|swf|txt|css|js|svg)$">
+#        Header set Cache-Control "max-age=2592000, public"
+#    </FilesMatch>
+#
+#    <FilesMatch "\\.(x?html?|php)$">
+#        Header set Cache-Control "max-age=300, private, must-revalidate"
+#    </FilesMatch>
+#</IfModule>
 
 
 Options +Indexes
 
 RewriteEngine On
 
-RewriteCond %{HTTP_HOST} ^www.domain.net$
-RewriteRule ^(.*) https://domain.net/$1 [QSA,L,R=301]
+#RewriteCond %{HTTP_HOST} ^www.domain.net$
+#RewriteRule ^(.*) https://domain.net/$1 [QSA,L,R=301]
 
 RewriteCond %{HTTPS} off
 RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI}
