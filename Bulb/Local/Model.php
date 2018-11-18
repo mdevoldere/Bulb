@@ -8,10 +8,11 @@ namespace Bulb\Local;
  */
 class Model implements IModel
 {
+
     /**
      * @var int $id
      */
-    protected $id;
+    protected $id = 0;
 
     /**
      * @var string $name
@@ -22,30 +23,36 @@ class Model implements IModel
     /**
      * Base Model contains 2 properties: (int)ID and (string)NAME
      * Model constructor.
-     * @param int $_id Current Model ID
      * @param string $_name
      */
-    public function __construct(int $_id = 0, string $_name = '')
+    public function __construct(string $_name = '')
     {
-        $this->id = $_id;
-        $this->name = \basename($_name);
+        $this->setName($_name);
     }
 
-    /**
-     * @return int
-     */
     public function getId() : int
     {
         return $this->id;
     }
 
-    /**
-     * @return string
-     */
+    public function setId(int $_id)
+    {
+        $this->id = ($_id > 0) ? $_id : 0;
+        return $this;
+    }
+
     public function getName() : string
     {
         return $this->name;
     }
+
+    public function setName(string $_name)
+    {
+        $_name = \basename($_name);
+        $this->name = !empty($_name) ? $_name : '';
+        return $this;
+    }
+
 
     /**
      * Returns true if isValid() if current Model ID > 0
@@ -57,12 +64,30 @@ class Model implements IModel
     }
 
     /**
-     * Returns true if current Model $name is setted
-     * @return bool
+     * @return bool true if current Model $name is setted
      */
     public function isValid() : bool
     {
         return !empty($this->name);
+    }
+
+    /**
+     * @return int Number of current Model Properties
+     */
+    public function count(): int
+    {
+        return \count(\get_object_vars($this));
+    }
+
+    /**
+     * Set Current Model to its default values
+     * @return $this
+     */
+    public function clear()
+    {
+        $this->id = 0;
+        $this->name = '';
+        return $this;
     }
 
     /**
@@ -73,7 +98,10 @@ class Model implements IModel
      */
     public function find($_key, $_default = null)
     {
-        return \property_exists($this, $_key) ? $this->{$_key} : $_default;
+        if(\is_string($_key) && \property_exists($this, $_key))
+            return $this->{$_key};
+
+        return $_default;
     }
 
     /**
@@ -96,11 +124,14 @@ class Model implements IModel
      */
     public function update($_key, $_value = null, bool $_force = true) : bool
     {
+        if(!\is_string($_key) || ($_force === false))
+            return false;
+
         if(!\property_exists($this, $_key))
             return false;
 
-        if(($_force === false))
-            return true;
+        if(($_key === 'id') && ($this->id > 0))
+            return false;
 
         $this->{$_key} = $_value;
 

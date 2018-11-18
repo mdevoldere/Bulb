@@ -7,44 +7,40 @@ namespace Bulb\Local;
  * Class Collection
  * @package Bulb\Local
  */
-class Collection extends Model implements ICollection
+class Collection extends Model
 {
+    /**
+     * @var int $id
+     */
+    protected $id = 0;
+
+    /**
+     * @var string $name
+     */
+    protected $name;
+
     /** @var array $items */
     protected $items = [];
 
-    /** @var null|IModel */
+    /** @var null|Collection */
     protected $masterCollection = null;
 
     /**
      * Collection constructor.
      * @param string $_name
+     * @param Collection $_masterCollection
      */
-    public function __construct(string $_name = 'Collection')
+    public function __construct(string $_name = 'Collection', Collection $_masterCollection = null)
     {
-        parent::__construct(0, $_name);
-    }
-
-    /**
-     * @param IModel|null $_masterCollection
-     * @return $this
-     */
-    public function setMasterCollection(IModel $_masterCollection = null)
-    {
+        parent::__construct($_name);
         $this->masterCollection = $_masterCollection;
-        return $this;
     }
 
-    /**
-     * @return int
-     */
     public function count() : int
     {
         return \count($this->items);
     }
 
-    /**
-     * @return $this
-     */
     public function clear()
     {
         $this->items = [];
@@ -53,18 +49,35 @@ class Collection extends Model implements ICollection
 
     /**
      * @param $key
-     * @param null $loadAsCollection
+     * @param null $_default
      * @return mixed|null
      */
-    public function find($key, $loadAsCollection = null)
+    public function find($key, $_default = null)
     {
+        if(empty($key))
+            return $_default;
+
         if(\array_key_exists($key, $this->items))
             return $this->items[$key];
 
-        if($this->masterCollection !== null)
-            return $this->masterCollection->find($key, $loadAsCollection);
+        foreach ($this->items as $k => $v)
+        {
+            if (\is_array($v))
+            {
+                if(\array_key_exists('id', $v) && ($v['id'] === $key))
+                    return $v;
+                if(\array_key_exists('name', $v) && ($v['name'] === $key))
+                    return $v;
+            }
 
-        return $loadAsCollection;
+            /*if($v === $key)
+                return $v;*/
+        }
+
+        if($this->masterCollection !== null)
+            return $this->masterCollection->find($key, $_default);
+
+        return $_default;
     }
 
     /**
@@ -95,18 +108,28 @@ class Collection extends Model implements ICollection
     }
 
     /**
-     * @param $key
-     * @param null $value
+     * @param string|int|Model $key
+     * @param null|mixed $value
      * @param bool $_force
      * @return bool
      */
     public function update($key, $value = null, bool $_force = true) : bool
     {
-        if(($_force === false) && \array_key_exists($key, $this->items))
+        if(($_force === false) && (null !== $this->find($key)))
             return false;
 
         $this->items[$key] = $value;
-        //exporter($this, '44');
+
+        return true;
+    }
+
+    public function delete($_filter = null): bool
+    {
+        if(!\is_string($_filter) || !\is_int($_filter))
+            return false;
+
+        if(\array_key_exists($_filter, $this->items))
+            unset($this->items[$_filter]);
 
         return true;
     }

@@ -35,7 +35,6 @@ if(\is_file(BULB_ROOT.'/Vendor/autoload.php'))
     /** @var \Composer\Autoload\ClassLoader $loader */
     $loader = require_once BULB_ROOT.'/Vendor/autoload.php';
 
-
     set_error_handler('\\Bulb\\Local\\Exception\\Exception::err');
     set_exception_handler('\\Bulb\\Local\\Exception\\Exception::exc');
 
@@ -57,5 +56,6 @@ if(\is_file(BULB_ROOT.'/Vendor/autoload.php'))
  * define BULB_STANDALONE constant to disable exit command.
  */
 if(!defined('BULB_STANDALONE'))
+{
     trigger_error('Bulb: Nothing to display !', E_USER_NOTICE);
-    exit('Bulb: Nothing to display !');
+}

@@ -30,10 +30,34 @@ interface IModel
     public function getId() : int;
 
     /**
+     * @param int $_id
+     * @return $this
+     */
+    public function setId(int $_id);
+
+    /**
      * Current IModel NAME. Typically a simple and explicit name
      * @return string
      */
     public function getName() : string;
+
+    /**
+     * @param string $_name NewCurrent IModel NAME. Typically a simple and explicit name
+     * @return $this
+     */
+    public function setName(string $_name);
+
+    /**
+     * How many items|properties in current IModel
+     * @return int
+     */
+    public function count() : int;
+
+    /**
+     * Set current IModel to its default values
+     * @return $this
+     */
+    public function clear();
 
     /**
      * Is current IModel registered. Typically registered if ID > 0 (ID > 0 usually means that the object is already saved somewhere such as a database).
