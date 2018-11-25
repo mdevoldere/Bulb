@@ -16,7 +16,7 @@
 namespace Bulb\Local;
 
 /**
- * Interface IModel
+ * Interface IModel.
  * Describe Base Bulb Model Interface
  * @package Bulb\Local
  */
@@ -30,6 +30,7 @@ interface IModel
     public function getId() : int;
 
     /**
+     * Set a new ID to current IModel
      * @param int $_id
      * @return $this
      */
@@ -42,22 +43,13 @@ interface IModel
     public function getName() : string;
 
     /**
+     * Set a new NAME to current IModel
      * @param string $_name NewCurrent IModel NAME. Typically a simple and explicit name
      * @return $this
      */
     public function setName(string $_name);
 
-    /**
-     * How many items|properties in current IModel
-     * @return int
-     */
-    public function count() : int;
 
-    /**
-     * Set current IModel to its default values
-     * @return $this
-     */
-    public function clear();
 
     /**
      * Is current IModel registered. Typically registered if ID > 0 (ID > 0 usually means that the object is already saved somewhere such as a database).
@@ -72,12 +64,19 @@ interface IModel
     public function isValid() : bool;
 
     /**
+     * Check if current IModel has attribute named $_key
+     * @param string $_key
+     * @return bool
+     */
+    public function has($_key) : bool;
+
+    /**
      * Find an item in current IModel using $_key
-     * @param int|string $key item Key
+     * @param int|string $_key item Key
      * @param mixed|null $_default Default value
      * @return mixed|null Item value if $_key found. $_default instead.
      */
-    public function find($key, $_default = null);
+    public function find($_key, $_default = null);
 
     /**
      * Get All current Model items as an array

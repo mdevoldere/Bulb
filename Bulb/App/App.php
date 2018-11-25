@@ -2,14 +2,32 @@
 
 namespace Bulb\App;
 
+if(!\defined('BULB_CACHE'))
+{
+    \define('BULB_CACHE', \dirname(__DIR__, 2).'/BulbCache/');
 
-use Bulb\Local\Collection;
-use Bulb\Local\Local;
+    if(!\is_dir(BULB_CACHE))
+    {
+        \mkdir(BULB_CACHE);
+    }
+}
+
 use Bulb\Local\LocalDir;
 use Bulb\Local\LocalFile;
 
 class App extends LocalDir
 {
+
+    /**
+     * Get LocalPath Object ref to BULB_CACHE.basename($_path)
+     * @param string $_path
+     * @return LocalDir
+     */
+    public static function getLocalCache(string $_path) : LocalDir
+    {
+        return LocalDir::getLocalDir((BULB_CACHE.\basename($_path)), true);
+    }
+
     /** @var string $instance */
     protected $instance;
 
@@ -24,15 +42,18 @@ class App extends LocalDir
         parent::__construct($_path, false);
 
         if(!$this->exists)
-            exit('App: Invalid App['.$this->name.']');
+            \trigger_error('App: Invalid App['.$this->name.']'.\_exporter($this));
 
-        $this->cache = Local::getLocalCache($this->name);
+        $this->cache = $this->find('Cache');
+
+        if(!$this->cache->isValid())
+            $this->cache = static::getLocalCache($this->name);
 
         $this->instance = \basename($_instance);
 
         $this->config = $this->cache->find($this->instance.'.php', true);
 
-        $this->config->setMasterCollection($this->find('conf.php', true));
+        $this->config->updateAll($this->find('conf.php', true), false);
     }
 
     /**
@@ -44,19 +65,18 @@ class App extends LocalDir
     }
 
     /**
-     * @param $key
-     * @param $default
      * @return LocalFile
      */
-    public function getConfig($key = null, $default = null) : LocalFile
+    public function getConfig() : LocalFile
     {
         return $this->config;
     }
 
+
     /**
      * @return string
      */
-    public function getNamespace(): string
+    public function getNamespace() : string
     {
         return ($this->name.'\\');
     }
@@ -64,7 +84,7 @@ class App extends LocalDir
     /**
      * @return string
      */
-    public function getInstance(): string
+    public function getInstance() : string
     {
         return $this->instance;
     }

@@ -5,10 +5,10 @@ namespace Bulb\Local;
 /**
  * Class Model
  * @package Bulb\Local
+ * @see \Bulb\Local\IModel
  */
 class Model implements IModel
 {
-
     /**
      * @var int $id
      */
@@ -53,11 +53,6 @@ class Model implements IModel
         return $this;
     }
 
-
-    /**
-     * Returns true if isValid() if current Model ID > 0
-     * @return bool
-     */
     public function isRegistered() : bool
     {
         return ($this->isValid() && ($this->id > 0));
@@ -71,23 +66,12 @@ class Model implements IModel
         return !empty($this->name);
     }
 
-    /**
-     * @return int Number of current Model Properties
-     */
-    public function count(): int
+    public function has($_key) : bool
     {
-        return \count(\get_object_vars($this));
-    }
+        if(empty($_key) || !\is_string($_key) || !\property_exists($this, $_key))
+            return false;
 
-    /**
-     * Set Current Model to its default values
-     * @return $this
-     */
-    public function clear()
-    {
-        $this->id = 0;
-        $this->name = '';
-        return $this;
+        return true;
     }
 
     /**
@@ -98,7 +82,7 @@ class Model implements IModel
      */
     public function find($_key, $_default = null)
     {
-        if(\is_string($_key) && \property_exists($this, $_key))
+        if($this->has($_key))
             return $this->{$_key};
 
         return $_default;
@@ -114,7 +98,6 @@ class Model implements IModel
         return \get_object_vars($this);
     }
 
-
     /**
      * Update property $_key with $_value
      * @param mixed $_key property to update
@@ -124,10 +107,7 @@ class Model implements IModel
      */
     public function update($_key, $_value = null, bool $_force = true) : bool
     {
-        if(!\is_string($_key) || ($_force === false))
-            return false;
-
-        if(!\property_exists($this, $_key))
+        if(($_force === false) || !$this->has($_key))
             return false;
 
         if(($_key === 'id') && ($this->id > 0))

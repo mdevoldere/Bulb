@@ -23,33 +23,27 @@ class ModelCollection extends Collection
         parent::__construct($_name, null);
     }
 
-    public function find($key, $_default = null)
+    public function find($_key, $_default = null)
     {
-        if(empty($key))
+        if(empty($_key))
             return $_default;
 
-        if(\array_key_exists($key, $this->items))
-            return $this->items[$key];
+        if(\array_key_exists($_key, $this->items))
+            return $this->items[$_key];
 
         foreach ($this->items as $k => $v)
         {
-            if($key === $v->getId())
+            if($_key === $v->getId())
                 return $v;
-            if($key === $v->getName())
+            if($_key === $v->getName())
                 return $v;
-
-            if($v instanceof Collection)
-            {
-                if(null !== ($f = $v->find($key)))
-                    return $f;
-            }
         }
 
         foreach ($this->items as $k => $v)
         {
             if($v instanceof Collection)
             {
-                if(null !== ($f = $v->find($key)))
+                if(null !== ($f = $v->find($_key)))
                     return $f;
             }
         }

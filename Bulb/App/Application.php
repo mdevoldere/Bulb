@@ -2,9 +2,9 @@
 
 namespace Bulb\App;
 
+use Bulb\Http\IRequest;
 use Bulb\Http\Request;
 use Bulb\Http\Router;
-use Bulb\Local\Collection;
 use Bulb\Local\LocalDir;
 use Bulb\Local\LocalFile;
 
@@ -19,8 +19,8 @@ class Application
     /** @var App */
     protected $app;
 
-    /** @var Router */
-    protected $router;
+    /** @var IRequest */
+    protected $request;
 
     /**
      * @return App
@@ -31,11 +31,11 @@ class Application
     }
 
     /**
-     * @return Router
+     * @return IRequest
      */
-    public function getRouter() : Router
+    public function getRequest() : IRequest
     {
-        return ($this->router = $this->router ?: new Router($this->getConfig()->find('path', '/')));
+        return ($this->request = $this->request ?: new Router($this->getConfig()->find('path', '/')));
     }
 
     /** @var View */
@@ -93,17 +93,17 @@ class Application
 
     /**
      * @param App $_application
-     * @param Router $_router
+     * @param IRequest $_request
      * Constructor
      */
-    public function __construct(App $_application, Router $_router = null)
+    public function __construct(App $_application, IRequest $_request = null)
     {
         $this->app = $_application;
 
-        if($_router !== null)
-            $this->router = $_router;
+        if($_request !== null)
+            $this->request = $_request;
 
-        $this->getRouter();
+        $this->getRequest();
     }
 
     public function createLayout() : Layout
@@ -119,19 +119,19 @@ class Application
     {
         try
         {
-            $this->getView()->prependPath($this->getRouter()->getController());
+            $this->getView()->prependPath($this->getRequest()->getController());
 
-            $this->getView()->addGlobal('request', Request::getRequest());
+            $this->getView()->addGlobal('request', $this->request->getRoute());
 
-            $c = $this->app->getControllerNamespace($this->getRouter()->getController());
+            $c = $this->app->getControllerNamespace($this->getRequest()->getController());
 
             $c = (new $c($this));
 
-            $a = ($this->getRouter()->getAction().'Action');
+            $a = ($this->getRequest()->getAction().'Action');
 
             if(!\method_exists($c, $a))
             {
-                throw new \InvalidArgumentException('BulbApp::InvalidAction['.$this->getRouter()->getAction().']');
+                throw new \InvalidArgumentException('BulbApp::InvalidAction['.$this->getRequest()->getAction().']');
             }
 
             echo $c->{$a}();
@@ -148,7 +148,7 @@ class Application
 
     public function getLink($path)
     {
-        return ($this->getConfig('url').$path);
+        return ($this->app->getConfig()->find('url').$path);
     }
 
 }

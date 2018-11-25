@@ -12,8 +12,6 @@ class Session
 
     public static function setUsers(array $users = [])
     {
-        Session::addUser('admusy', 'sDev2508_');
-
         foreach ($users as $uname => $upwd)
         {
             Session::addUser($uname, $upwd);

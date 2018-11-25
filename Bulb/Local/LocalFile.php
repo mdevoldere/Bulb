@@ -2,11 +2,20 @@
 
 namespace Bulb\Local;
 
-class LocalFile extends Local
+class LocalFile extends Collection implements ILocal
 {
 
-    /** @var null|Collection $collection */
-    protected $collection = null;
+    /**
+     * Path of current |file
+     * @var string $path
+     */
+    protected $path;
+
+    /**
+     * Is the local file exists
+     * @var bool $exists
+     */
+    protected $exists;
 
     /**
      * LocalFile constructor.
@@ -15,18 +24,35 @@ class LocalFile extends Local
      */
     public function __construct(string $_path, bool $_loadAsCollection = false)
     {
-        parent::__construct($_path);
+        $this->path = \trim($_path);
 
-        if(!LocalDir::isDir(\dirname($_path), false))
-            exit('LocalFile::InvalidFileDir');
-
-        $this->path = $_path;
+        if(!LocalDir::isDir(\dirname($this->path), false))
+            \trigger_error('LocalFile::InvalidFileDir');
 
         $this->exists = \is_file($this->path);
 
         if($_loadAsCollection)
             $this->findAll();
     }
+
+    /**
+     * Is the local directory|file exists
+     * @return bool
+     */
+    public function isValid() : bool
+    {
+        return $this->exists;
+    }
+
+    /** Get Path of current directory|file
+     * @return string
+     */
+    public function getPath() : string
+    {
+        return $this->path;
+    }
+
+
 
     public function findAll($_includeMaster = null) : array
     {
@@ -45,17 +71,8 @@ class LocalFile extends Local
             }
         }
 
-        return parent::findAll($_includeMaster);
+        return $this->items;
     }
-
-    public function toString($_filter = null) : string
-    {
-        if($this->isValid())
-            return (\file_get_contents($this->path));
-
-        return '';
-    }
-
 
     /**
      * @param null|mixed $_data
@@ -99,6 +116,14 @@ class LocalFile extends Local
             $this->exists = !(\unlink($this->path));
 
         return !$this->exists;
+    }
+
+    public function toString($_filter = null) : string
+    {
+        if($this->isValid())
+            return (\file_get_contents($this->path));
+
+        return '';
     }
 
 }

@@ -12,6 +12,12 @@ interface ILocal
 {
 
     /**
+     * Is current ILocal exists.
+     * @return bool
+     */
+    public function isValid() : bool;
+
+    /**
      * Get the file path
      * @return string
      */

@@ -21,9 +21,9 @@ class Controller
 
         $this->layout = $this->app->createLayout();
 
-        $this->layout->setBody($this->app->getRouter()->getAction());
+        $this->layout->setBody($this->app->getRequest()->getAction());
 
-        $this->id = $this->app->getRouter()->getId();
+        $this->id = $this->app->getRequest()->getId();
 
         $this->init();
     }
@@ -58,7 +58,7 @@ class Controller
             if(empty($redir_action))
                 $redir_action = Router::DEFAULT_ACTION;
 
-            $this->app->getRouter()->goTo($redir_controller, $redir_action);
+            $this->app->getRequest()->goTo($redir_controller, $redir_action);
         }
 
         //exiter($_SESSION);
@@ -90,7 +90,7 @@ class Controller
     protected function json()
     {
         return \json_encode([
-            'request' => $this->app->getRouter()->getPath(),
+            'request' => $this->app->getRequest()->getPath(),
             'response' => $this->vars
         ]);
     }

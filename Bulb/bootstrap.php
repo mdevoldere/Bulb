@@ -35,20 +35,13 @@ if(\is_file(BULB_ROOT.'/Vendor/autoload.php'))
     /** @var \Composer\Autoload\ClassLoader $loader */
     $loader = require_once BULB_ROOT.'/Vendor/autoload.php';
 
+    \Bulb\Loader::setLoader($loader);
+
     set_error_handler('\\Bulb\\Local\\Exception\\Exception::err');
     set_exception_handler('\\Bulb\\Local\\Exception\\Exception::exc');
 
     if(defined('BULB_APP') && defined('BULB_INSTANCE'))
-    {
-        $app = new \Bulb\App\App(BULB_APP, BULB_INSTANCE);
-        $loader->addPsr4($app->getNamespace(), $app->getPath());
-        //exiter($loader);
-        //exiter($app, $app->getNamespace());
-        //exporter($loader);
-        $application = new \Bulb\App\Application($app);
-        $application->run();
-        //exit(BULB_APP.': No App to display !');
-    }
+        \Bulb\Loader::run(BULB_APP, BULB_INSTANCE);
 }
 
 /**

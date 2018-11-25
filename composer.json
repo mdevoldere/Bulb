@@ -1,0 +1,31 @@
+{
+  "name": "mdevoldere/bulb",
+  "type": "library",
+  "version": "0.1.2-alpha",
+  "description": "Educational MVC PHP Framework",
+  "keywords": ["educational","mvc","framework"],
+  "homepage": "https://github.com/mdevoldere/Bulb",
+  "authors": [
+    {
+      "name": "M DEVOLDERE",
+      "email": "contact@devoldere.net",
+      "homepage": "http://devoldere.net",
+      "role": "Developer"
+    }
+  ],
+  "minimum-stability": "stable",
+  "config": {
+    "vendor-dir": "./Vendor/",
+    "optimize-autoloader": true
+  },
+  "autoload": {
+    "psr-4": {
+      "Bulb\\":"./Bulb/",
+      "BulbApp\\":"./BulbApp/"
+    }
+  },
+  "require": {
+    "twig/twig": "^2.0",
+    "smarty/smarty": "~3.1"
+  }
+}

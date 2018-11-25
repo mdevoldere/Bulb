@@ -2,102 +2,132 @@
 
 namespace Bulb\Http;
 
-use Bulb\Local\Collection;
-use Bulb\Tools\Utils;
 
-
-class Request
+/**
+ * Class Request
+ * @package Bulb\Http
+ */
+class Request implements IRequest
 {
     const DEFAULT_GET_KEY = 'url';
 
-    protected static $query = [];
-
-
-    /**
-     * Get Item from $_GET or $_GET array if no key specified
-     * returns null if no result
-     * @param null|mixed $key
-     * @param mixed $default
-     * @return mixed|null
-     */
-    public static function get($key = null, $default = null)
-    {
-        if($key === null)
-            return !empty($_GET) ? $_GET : [];
-
-        return \array_key_exists($key, $_GET) ? $_GET[$key] : $default;
-    }
+    protected static $defaultRoute = ['home', 'index', null];
 
     /**
-     * Get Item from $_POST or $_POST array if no key specified
-     * returns null if no result
-     * @param null|mixed $key
-     * @param mixed $default
-     * @return mixed|null
+     * @var string $path
      */
-    public static function post($key = null, $default = null)
-    {
-        if($key === null)
-            return !empty($_POST) ? $_POST : [];
-
-        return \array_key_exists($key, $_POST) ? $_POST[$key] : $default;
-    }
+    protected $path = '/';
 
     /**
-     * Get Item from $_FILES or $_FILES array if no key specified
-     * returns null if no result
-     * @param null $key
-     * @return mixed|null
+     * @var array $route
      */
-    public static function files($key = null)
-    {
-        if($key === null)
-            return !empty($_FILES) ? $_FILES : [];
-
-        return \array_key_exists($key, $_FILES) ? $_FILES[$key] : null;
-    }
+    protected $route;
 
     /**
-     * Get Item from $_SESSION or $_SESSION array if no key specified
-     * returns null if no result
-     * @param null|mixed $key
-     * @param null $value
-     * @return mixed
+     * Request constructor.
      */
-    public static function session($key = null, $value = null)
+    public function __construct()
     {
-        if($key === null)
-            return !empty($_SESSION) ? $_SESSION : [];
-
-        if($value !== null)
-        {
-            $_SESSION[$key] = $value;
-        }
-
-        return \array_key_exists($key, $_SESSION) ? $_SESSION[$key] : null;
+        $this->route = self::$defaultRoute;
     }
 
-    public static function parseUrl(string $key = '') : array
+    public function getController(): string
     {
-        if(empty($key))
-            $key = self::DEFAULT_GET_KEY;
-
-        // \parse_str($_SERVER['QUERY_STRING'], self::$query);
-
-        return \array_key_exists($key, $_GET) ? \explode('/', $_GET[$key]) : [];
+        return $this->route[0];
     }
 
-    public static function getRequest()
+    public function getAction(): string
+    {
+        return $this->route[1];
+    }
+
+    public function getId()
+    {
+        return $this->route[2];
+    }
+
+    public function getRoute() : array
     {
         return [
-            'session' => self::session(),
-            'get' => self::get(),
-            'post' => self::post(),
-            'files' => self::files(),
+            'controller' => $this->route[0],
+            'action' => $this->route[1],
+            'id' => $this->route[2],
         ];
     }
 
-    /** Request constructor. */
-    protected function __construct() { }
+    public function getPath(): string
+    {
+        return $this->path;
+    }
 
+    public function getUrl(): string
+    {
+        return $this->getPath();
+    }
+
+
+    /**
+     * @param string $_controller
+     * @return $this
+     */
+    public function setController(string $_controller)
+    {
+        $this->route[0] = Secure::cleanLower($_controller, self::$defaultRoute[0]);
+        return $this;
+    }
+
+
+    public function setAction(string $_action)
+    {
+        $this->route[1] = Secure::cleanLower($_action, self::$defaultRoute[1]);
+        return $this;
+    }
+
+    public function setId($_id = null)
+    {
+        $this->route[2] = Secure::cleanLower($_id, self::$defaultRoute[2]);
+
+        return $this;
+    }
+
+    public function setRoute(array $_route)
+    {
+        $i = 0;
+        $this->route = self::$defaultRoute;
+
+        foreach($_route as $item)
+        {
+            $this->route[$i] = Secure::cleanLower($item, self::$defaultRoute[$i]);
+            ++$i;
+        }
+
+        $this->path = ('/'.\rtrim(\implode('/', $this->route), '/'));
+
+        return $this;
+    }
+
+    public function setPath(string $_path)
+    {
+        return $this->setRoute(\explode('/', $_path));
+    }
+
+    public function setUrl(string $_controller = null, string $_action = null, string $_id = null)
+    {
+        return $this->setRoute([$_controller, $_action, $_id]);
+    }
+
+
+    public function go($url = null)
+    {
+        if(!\headers_sent())
+        {
+            \header('location: '.((null !== $url) ? $url : $this->getUrl()).'');
+            exit();
+        }
+    }
+
+    public function goTo(string $controller = null, string $action = null, $id = null)
+    {
+        $this->setUrl($controller, $action, $id)->go();
+    }
 }

@@ -1,4 +1,5 @@
 .idea/
-Bulb/composer.lock
-Bulb/composer.phar
-Bulb/Vendor/
+composer.lock
+composer.phar
+phpDocumentor.phar
+Vendor/

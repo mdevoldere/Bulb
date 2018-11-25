@@ -7,17 +7,8 @@ namespace Bulb\Local;
  * Class Collection
  * @package Bulb\Local
  */
-class Collection extends Model
+class Collection extends Model implements ICollection
 {
-    /**
-     * @var int $id
-     */
-    protected $id = 0;
-
-    /**
-     * @var string $name
-     */
-    protected $name;
 
     /** @var array $items */
     protected $items = [];
@@ -36,11 +27,25 @@ class Collection extends Model
         $this->masterCollection = $_masterCollection;
     }
 
+    /**
+     * @param Collection|null $masterCollection
+     */
+    public function setMasterCollection(Collection $masterCollection = null)
+    {
+        $this->masterCollection = $masterCollection;
+    }
+
+    /**
+     * @return int
+     */
     public function count() : int
     {
         return \count($this->items);
     }
 
+    /**
+     * @return $this
+     */
     public function clear()
     {
         $this->items = [];
@@ -48,34 +53,32 @@ class Collection extends Model
     }
 
     /**
-     * @param $key
+     * @param string $_key
+     * @return bool
+     */
+    public function has($_key) : bool
+    {
+        if(empty($_key) || !\is_string($_key))
+            return false;
+
+        if(!\array_key_exists($_key, $this->items))
+            return false;
+
+        return true;
+    }
+
+    /**
+     * @param $_key
      * @param null $_default
      * @return mixed|null
      */
-    public function find($key, $_default = null)
+    public function find($_key, $_default = null)
     {
-        if(empty($key))
-            return $_default;
-
-        if(\array_key_exists($key, $this->items))
-            return $this->items[$key];
-
-        foreach ($this->items as $k => $v)
-        {
-            if (\is_array($v))
-            {
-                if(\array_key_exists('id', $v) && ($v['id'] === $key))
-                    return $v;
-                if(\array_key_exists('name', $v) && ($v['name'] === $key))
-                    return $v;
-            }
-
-            /*if($v === $key)
-                return $v;*/
-        }
+        if($this->has($_key))
+            return $this->items[$_key];
 
         if($this->masterCollection !== null)
-            return $this->masterCollection->find($key, $_default);
+            return $this->masterCollection->find($_key, $_default);
 
         return $_default;
     }
