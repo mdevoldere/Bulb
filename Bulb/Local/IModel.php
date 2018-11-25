@@ -50,13 +50,6 @@ interface IModel
     public function setName(string $_name);
 
 
-
-    /**
-     * Is current IModel registered. Typically registered if ID > 0 (ID > 0 usually means that the object is already saved somewhere such as a database).
-     * @return bool
-     */
-    public function isRegistered() : bool;
-
     /**
      * Is current IModel valid. Typically valid if all of its properties are correctly filled.
      * @return bool
@@ -65,7 +58,7 @@ interface IModel
 
     /**
      * Check if current IModel has attribute named $_key
-     * @param string $_key
+     * @param string|int $_key
      * @return bool
      */
     public function has($_key) : bool;
@@ -73,8 +66,8 @@ interface IModel
     /**
      * Find an item in current IModel using $_key
      * @param int|string $_key item Key
-     * @param mixed|null $_default Default value
-     * @return mixed|null Item value if $_key found. $_default instead.
+     * @param mixed $_default Default value
+     * @return mixed Item value if $_key found. $_default instead.
      */
     public function find($_key, $_default = null);
 

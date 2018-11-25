@@ -53,11 +53,6 @@ class Model implements IModel
         return $this;
     }
 
-    public function isRegistered() : bool
-    {
-        return ($this->isValid() && ($this->id > 0));
-    }
-
     /**
      * @return bool true if current Model $name is setted
      */
@@ -107,10 +102,7 @@ class Model implements IModel
      */
     public function update($_key, $_value = null, bool $_force = true) : bool
     {
-        if(($_force === false) || !$this->has($_key))
-            return false;
-
-        if(($_key === 'id') && ($this->id > 0))
+        if(($_force === false) || !$this->has($_key) || (($_key === 'id') && ($this->id > 0)))
             return false;
 
         $this->{$_key} = $_value;
