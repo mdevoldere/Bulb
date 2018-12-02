@@ -20,9 +20,8 @@ class LocalFile extends Collection implements ILocal
     /**
      * LocalFile constructor.
      * @param string $_path
-     * @param bool $_loadAsCollection
      */
-    public function __construct(string $_path, bool $_loadAsCollection = false)
+    public function __construct(string $_path)
     {
         $this->path = \trim($_path);
 
@@ -30,9 +29,6 @@ class LocalFile extends Collection implements ILocal
             \trigger_error('LocalFile::InvalidFileDir');
 
         $this->exists = \is_file($this->path);
-
-        if($_loadAsCollection)
-            $this->findAll();
     }
 
     /**
@@ -42,6 +38,11 @@ class LocalFile extends Collection implements ILocal
     public function isValid() : bool
     {
         return $this->exists;
+    }
+
+    public function getName() : string
+    {
+        return $this->name;
     }
 
     /** Get Path of current directory|file
@@ -54,7 +55,7 @@ class LocalFile extends Collection implements ILocal
 
 
 
-    public function findAll($_includeMaster = null) : array
+    public function findAll($_filter = null) : array
     {
         if(empty($this->items) && $this->isValid())
         {
@@ -110,7 +111,7 @@ class LocalFile extends Collection implements ILocal
      * @param null|mixed $_filter
      * @return bool
      */
-    public function delete($_filter = null) : bool
+    public function remove($_filter = null) : bool
     {
         if($this->isValid())
             $this->exists = !(\unlink($this->path));

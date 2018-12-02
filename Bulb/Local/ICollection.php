@@ -22,22 +22,22 @@ namespace Bulb\Local;
 interface ICollection extends IModel
 {
     /**
-     * Current ICollection items count
-     * @return int
-     */
-    public function count() : int;
-
-    /**
      * Empty current ICollection
      * @return $this
      */
     public function clear();
 
     /**
+     * Current ICollection items count
+     * @return int
+     */
+    public function count() : int;
+
+    /**
      * Delete item in current ICollection using $_filter
      * @param null $_filter
      * @return bool
      */
-    public function delete($_filter = null) : bool;
+    public function remove($_filter = null) : bool;
 
 }

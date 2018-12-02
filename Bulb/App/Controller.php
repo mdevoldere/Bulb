@@ -2,6 +2,7 @@
 
 namespace Bulb\App;
 
+use Bulb\Http\Request;
 use Bulb\Http\Router;
 use Bulb\Http\Session;
 
@@ -53,7 +54,7 @@ class Controller
         if(!Session::auth())
         {
             if(empty($redir_controller))
-                $redir_controller = Router::DEFAULT_CONTROLLER;
+                $redir_controller = Request::DEFAULT_CONTROLLER;
 
             if(empty($redir_action))
                 $redir_action = Router::DEFAULT_ACTION;

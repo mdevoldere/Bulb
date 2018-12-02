@@ -10,123 +10,171 @@ namespace Bulb\Local;
 class Model implements IModel
 {
     /**
-     * @var int $id
+     * Build search filter
+     * @param int|string|array $_pattern
+     * @param null|mixed $_filter
+     * @return array
+     */
+    public static function buildFilter($_pattern, $_filter = null) : array
+    {
+        try
+        {
+            if(empty($_pattern))
+                return [];
+
+            if($_pattern instanceof IModel)
+            {
+                $_pattern = $_pattern->findAll();
+            }
+            elseif(\is_string($_pattern))
+            {
+                if(\substr($_pattern, 0, 1) === '{')
+                    $_pattern = @\json_decode($_pattern, true);
+                else
+                    $_pattern = [$_pattern => $_filter];
+            }
+
+            if(!\is_array($_pattern))
+                $_pattern = [];
+
+            return $_pattern;
+        }
+        catch (\Exception $e)
+        {
+            return [];
+        }
+    }
+
+
+    /**
+     * @var string|int $id
      */
     protected $id = 0;
 
     /**
-     * @var string $name
-     */
-    protected $name;
-
-
-    /**
-     * Base Model contains 2 properties: (int)ID and (string)NAME
+     * Base Model contains 1 property: ID
      * Model constructor.
-     * @param string $_name
+     * @param int|string $_id
      */
-    public function __construct(string $_name = '')
+    public function __construct($_id = 0)
     {
-        $this->setName($_name);
+        $this->setId($_id);
     }
 
-    public function getId() : int
+    public function getId()
     {
         return $this->id;
     }
 
-    public function setId(int $_id)
+    public function setId($_id)
     {
-        $this->id = ($_id > 0) ? $_id : 0;
+        $this->id = !empty($_id) ? $_id : 0;
         return $this;
     }
 
-    public function getName() : string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $_name)
-    {
-        $_name = \basename($_name);
-        $this->name = !empty($_name) ? $_name : '';
-        return $this;
-    }
-
-    /**
-     * @return bool true if current Model $name is setted
-     */
     public function isValid() : bool
     {
-        return !empty($this->name);
+        return !empty($this->id);
     }
 
-    public function has($_key) : bool
+    public function getFilter($_key, $_value = null) : array
     {
-        if(empty($_key) || !\is_string($_key) || !\property_exists($this, $_key))
+        try
+        {
+            $r = [];
+
+            foreach (static::buildFilter($_key, $_value) as $k => $v)
+            {
+                if(\property_exists($this, $k))
+                    $r[$k] = $v;
+                elseif (\property_exists($this, $v))
+                    $r[$v] = null;
+            }
+
+            return $r;
+        }
+        catch (\Exception $e)
+        {
+            return [];
+        }
+    }
+
+    public function has($_key, $_value = null) : bool
+    {
+        if(empty($_key))
             return false;
 
-        return true;
+        if(\is_string($_key) && \property_exists($this, $_key))
+        {
+            return (($_value === null) ? true : ($this->{$_key} === $_value));
+        }
+        elseif(\is_array($_key))
+        {
+            foreach ($_key as $k => $v)
+            {
+                if(!$this->has($k, $v))
+                {
+                    if(!$this->has($v, null))
+                        return false;
+                }
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
-    /**
-     * Returns a property value if found in current Model
-     * @param $_key
-     * @param null|mixed $_default
-     * @return mixed
-     */
-    public function find($_key, $_default = null)
+    public function hasNull($_key) : bool
     {
-        if($this->has($_key))
-            return $this->{$_key};
-
-        return $_default;
+        return $this->has($_key) ? ($this->{$_key} === null) : false;
     }
 
-    /**
-     * Returns object as an array
-     * @param null|mixed $_filter
-     * @return array
-     */
+    public function find($_pattern, $_filter = null)
+    {
+        if($this->has($_pattern, $_filter))
+            return $this->{$_pattern};
+
+        return null;
+    }
+
     public function findAll($_filter = null) : array
     {
-        return \get_object_vars($this);
+        if(empty($_filter))
+            return \get_object_vars($this);
+
+        $r = [];
+
+        foreach (static::buildFilter($_filter) as  $k => $v)
+        {
+            if($this->has($v))
+                $r[] = $this->{$v};
+            elseif($this->hasValue($k, $v))
+                $r[] = $this->{$k};
+        }
+
+        return $r;
     }
 
-    /**
-     * Update property $_key with $_value
-     * @param mixed $_key property to update
-     * @param null|mixed $_value  new value
-     * @param bool $_force set to false to fake update
-     * @return bool
-     */
-    public function update($_key, $_value = null, bool $_force = true) : bool
-    {
-        if(($_force === false) || !$this->has($_key) || (($_key === 'id') && ($this->id > 0)))
-            return false;
 
-        $this->{$_key} = $_value;
+
+    public function insert($_key, $_value = null): bool
+    {
+        foreach (static::buildFilter($_key, $_value) as $k => $v)
+        {
+            if($this->hasNull($k))
+                $this->{$k} = $v;
+        }
 
         return true;
     }
 
-    /**
-     * Update properties of current Model using $_collection
-     * @param array|IModel $_collection where each key is a property name
-     * @param bool $_force
-     * @return bool
-     */
-    public function updateAll($_collection = [], bool $_force = true) : bool
+    public function update($_pattern, $_filter = null) : bool
     {
-        if($_collection instanceof IModel)
-            $_collection = $_collection->findAll();
-
-        if(\is_array($_collection))
+        foreach (static::buildFilter($_pattern, $_filter) as $k => $v)
         {
-            foreach ($_collection as $k => $v)
-            {
-                $this->update($k, $v, $_force);
-            }
+            if($this->has($k))
+                $this->{$k} = $v;
         }
 
         return true;
@@ -139,7 +187,7 @@ class Model implements IModel
      */
     public function toString($_filter = null) : string
     {
-        $s = ($this->id.'. '.$this->name."\n");
+        $s = (\basename(\get_called_class()).'::'.$this->id."\n");
 
         foreach ($this->findAll($_filter) as $k => $v)
         {

@@ -23,19 +23,19 @@ class ModelCollection extends Collection
         parent::__construct($_name, null);
     }
 
-    public function find($_key, $_default = null)
+    public function find($_pattern, $_filter = null)
     {
-        if(empty($_key))
-            return $_default;
+        if(empty($_pattern))
+            return $_filter;
 
-        if(\array_key_exists($_key, $this->items))
-            return $this->items[$_key];
+        if(\array_key_exists($_pattern, $this->items))
+            return $this->items[$_pattern];
 
         foreach ($this->items as $k => $v)
         {
-            if($_key === $v->getId())
+            if($_pattern === $v->getId())
                 return $v;
-            if($_key === $v->getName())
+            if($_pattern === $v->getName())
                 return $v;
         }
 
@@ -43,41 +43,41 @@ class ModelCollection extends Collection
         {
             if($v instanceof Collection)
             {
-                if(null !== ($f = $v->find($_key)))
+                if(null !== ($f = $v->find($_pattern)))
                     return $f;
             }
         }
 
-        return $_default;
+        return $_filter;
     }
 
-    public function findAll($_includeMaster = null): array
+    public function findAll($_filter = null): array
     {
         return $this->items;
     }
 
-    public function update($key, $value = null, bool $_force = true): bool
+    public function update($pattern, $filter = null, bool $_force = true): bool
     {
-        if($value instanceof IModel)
-            $key = $value;
+        if($filter instanceof IModel)
+            $pattern = $filter;
 
-        if(!$key instanceof IModel)
+        if(!$pattern instanceof IModel)
             return false;
 
 
 
-        if(!$key->isRegistered())
+        if(!$pattern->isRegistered())
         {
             if($this->count() > 0)
-                $key->setId(\max(\array_keys($this->items))+1);
+                $pattern->setId(\max(\array_keys($this->items))+1);
             else
-                $key->setId(1);
+                $pattern->setId(1);
         }
 
-        $value = $key;
-        $key = $value->getId();
+        $filter = $pattern;
+        $pattern = $filter->getId();
 
-        return parent::update($key, $value, $_force);
+        return parent::update($pattern, $filter, $_force);
     }
 
 

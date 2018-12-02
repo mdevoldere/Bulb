@@ -25,30 +25,16 @@ interface IModel
 
     /**
      * Current IModel Unique ID
-     * @return int
+     * @return int|string
      */
-    public function getId() : int;
+    public function getId();
 
     /**
      * Set a new ID to current IModel
-     * @param int $_id
+     * @param int|string $_id
      * @return $this
      */
-    public function setId(int $_id);
-
-    /**
-     * Current IModel NAME. Typically a simple and explicit name
-     * @return string
-     */
-    public function getName() : string;
-
-    /**
-     * Set a new NAME to current IModel
-     * @param string $_name NewCurrent IModel NAME. Typically a simple and explicit name
-     * @return $this
-     */
-    public function setName(string $_name);
-
+    public function setId($_id);
 
     /**
      * Is current IModel valid. Typically valid if all of its properties are correctly filled.
@@ -57,19 +43,26 @@ interface IModel
     public function isValid() : bool;
 
     /**
-     * Check if current IModel has attribute named $_key
+     * Check if current IModel has item named $_key
      * @param string|int $_key
      * @return bool
      */
     public function has($_key) : bool;
 
     /**
+     * Check if current IModel has item named $_key with value === null
+     * @param $_key
+     * @return bool true if item exists && its value === null. False instead
+     */
+    public function hasNull($_key) : bool;
+
+    /**
      * Find an item in current IModel using $_key
-     * @param int|string $_key item Key
-     * @param mixed $_default Default value
+     * @param int|string $_pattern item Key
+     * @param mixed $_filter Default value
      * @return mixed Item value if $_key found. $_default instead.
      */
-    public function find($_key, $_default = null);
+    public function find($_pattern, $_filter = null);
 
     /**
      * Get All current Model items as an array
@@ -79,21 +72,19 @@ interface IModel
     public function findAll($_filter = null) : array;
 
     /**
-     * Update current IModel item with new value
-     * @param int|string $_key item Key
-     * @param null $_value new value to apply
-     * @param bool $_force set to false allows to protect write operations in specific context
+     * @param string|int $_key
+     * @param null $_value
      * @return bool
      */
-    public function update($_key, $_value = null, bool $_force = true) : bool;
+    public function insert($_key, $_value = null) : bool;
 
     /**
-     * Update properties of current IModel using $_collection. typically call above method update(key, value) for each item in $_collection
-     * @param array|IModel $_collection where each key is an item key in current IModel
-     * @param bool $_force set to false allows to protect write operations in specific context
+     * Update current IModel item with new value
+     * @param int|string $_pattern item Key
+     * @param null $_filter new value to apply
      * @return bool
      */
-    public function updateAll($_collection = [], bool $_force = true) : bool;
+    public function update($_pattern, $_filter = null) : bool;
 
     /**
      * Returns current IModel as string.

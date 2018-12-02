@@ -13,34 +13,28 @@ class Collection extends Model implements ICollection
     /** @var array $items */
     protected $items = [];
 
-    /** @var null|Collection */
-    protected $masterCollection = null;
-
     /**
      * Collection constructor.
      * @param string $_name
-     * @param Collection $_masterCollection
+     * @param Collection $_collection
      */
-    public function __construct(string $_name = 'Collection', Collection $_masterCollection = null)
+    public function __construct(string $_name = 'Collection', Collection $_collection = null)
     {
         parent::__construct($_name);
-        $this->masterCollection = $_masterCollection;
+
+        $this->setCollection($_collection);
     }
 
     /**
-     * @param Collection|null $masterCollection
+     * @param Collection|null $_collection
+     * @return $this
      */
-    public function setMasterCollection(Collection $masterCollection = null)
+    public function setCollection(Collection $_collection = null)
     {
-        $this->masterCollection = $masterCollection;
-    }
+        if(!empty($_collection))
+            $this->updateAll($_collection, false);
 
-    /**
-     * @return int
-     */
-    public function count() : int
-    {
-        return \count($this->items);
+        return $this;
     }
 
     /**
@@ -53,80 +47,107 @@ class Collection extends Model implements ICollection
     }
 
     /**
-     * @param string $_key
+     * @return int
+     */
+    public function count() : int
+    {
+        return \count($this->items);
+    }
+
+
+    /**
+     * @param string|int $_key
      * @return bool
      */
     public function has($_key) : bool
     {
-        if(empty($_key) || !\is_string($_key))
+        if(empty($_key))
             return false;
 
-        if(!\array_key_exists($_key, $this->items))
-            return false;
+        if(\array_key_exists($_key, $this->items))
+            return true;
 
-        return true;
+        return false;
     }
 
     /**
-     * @param $_key
-     * @param null $_default
+     * @param string|int $_pattern
+     * @param null|mixed $_filter
      * @return mixed|null
      */
-    public function find($_key, $_default = null)
+    public function find($_pattern, $_filter = null)
     {
-        if($this->has($_key))
-            return $this->items[$_key];
+        if($this->has($_pattern))
+        {
+            if($_filter === null)
+                return $this->items[$_pattern];
 
-        if($this->masterCollection !== null)
-            return $this->masterCollection->find($_key, $_default);
+            if($_filter === $this->items[$_pattern])
+                return $this->items[$_pattern];
+        }
 
-        return $_default;
+        return null;
     }
 
     /**
-     * @param null|mixed $_includeMaster
+     * @param null|mixed $_filter
      * @return array
      */
-    public function findAll($_includeMaster = null) : array
+    public function findAll($_filter = null) : array
     {
-        if($_includeMaster === null)
-            $_includeMaster = true;
-
-        if(($_includeMaster === true) && ($this->masterCollection !== null))
+        try
         {
-            $r = $this->items;
+            if(empty($_filter))
+                return $this->items;
 
-            foreach ($this->masterCollection->findAll($_includeMaster) as $k => $v)
+            if(\is_string($_filter))
             {
-                if(!\array_key_exists($k, $r))
+                if(\substr($_filter, 0, 1) === '{')
+                    $_filter = \json_decode($_filter, true);
+            }
+
+            if(!\is_array($_filter))
+                $_filter = [];
+
+            $r = [];
+
+            foreach ($_filter as $k => $v)
+            {
+                if(\array_key_exists($k, $this->items))
                 {
-                    $r[$k] = $v;
+                    if($v === $this->items[$k])
+                    {
+                        $r[$k] = $v;
+                    }
                 }
             }
 
             return $r;
         }
-
-        return $this->items;
+        catch(\Exception $e)
+        {
+            \trigger_error($e->getMessage());
+        }
     }
 
     /**
-     * @param string|int|Model $key
-     * @param null|mixed $value
+     * @param string|int|Model $pattern
+     * @param null|mixed $filter
      * @param bool $_force
      * @return bool
      */
-    public function update($key, $value = null, bool $_force = true) : bool
+    public function update($pattern, $filter = null) : bool
     {
-        if(($_force === false) && (null !== $this->find($key)))
-            return false;
+        foreach (static::buildFilter($pattern, $filter) as $k => $v)
+        {
+            $this->items[$pattern] = $filter;
+        }
 
-        $this->items[$key] = $value;
 
         return true;
     }
 
-    public function delete($_filter = null): bool
+    public function remove($_filter = null): bool
     {
         if(!\is_string($_filter) || !\is_int($_filter))
             return false;

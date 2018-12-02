@@ -5,7 +5,7 @@ namespace Bulb\Local;
 
 /**
  * Interface ILocal
- * Describe a IModel directory|file
+ * Describe IModel directory|file
  * @package Bulb\Local
  */
 interface ILocal
@@ -18,23 +18,29 @@ interface ILocal
     public function isValid() : bool;
 
     /**
-     * Get the file path
+     * Get current file NAME.
+     * @return string
+     */
+    public function getName() : string;
+
+    /**
+     * Get current file PATH
      * @return string
      */
     public function getPath() : string;
 
     /**
      * Save $_content in file
-     * @param null|mixed $_data
-     * @return int
+     * @param mixed $_data
+     * @return int bytes wrote
      */
-    public function save($_data = null) : int;
+    public function save($_data) : int;
 
     /**
      * Delete File or some content if $_filter
      * @param null|mixed $_filter
      * @return bool
      */
-    public function delete($_filter = null) : bool;
+    public function remove($_filter = null) : bool;
 
 }
