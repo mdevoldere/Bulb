@@ -49,14 +49,14 @@ class Model implements IModel
     /**
      * @var string|int $id
      */
-    protected $id = 0;
+    protected $id;
 
     /**
      * Base Model contains 1 property: ID
      * Model constructor.
      * @param int|string $_id
      */
-    public function __construct($_id = 0)
+    public function __construct($_id = null)
     {
         $this->setId($_id);
     }
@@ -66,9 +66,9 @@ class Model implements IModel
         return $this->id;
     }
 
-    public function setId($_id)
+    public function setId($_id = null)
     {
-        $this->id = !empty($_id) ? $_id : 0;
+        $this->id = !empty($_id) ? $_id : null;
         return $this;
     }
 
@@ -101,9 +101,6 @@ class Model implements IModel
 
     public function has($_key, $_value = null) : bool
     {
-        if(empty($_key))
-            return false;
-
         if(\is_string($_key) && \property_exists($this, $_key))
         {
             return (($_value === null) ? true : ($this->{$_key} === $_value));
