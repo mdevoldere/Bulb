@@ -16,58 +16,47 @@ class Layout extends Collection
 
     public function __construct($theme = null)
     {
-        $this->setTheme($theme);
+        $this->Theme($theme ?? 'default');
         $this->init();
     }
 
     protected function init()  { }
 
+
     /**
-     * @return mixed
+     * @param mixed $_theme
+     * @return string
      */
-    public function getTheme()
+    public function Theme(?string $_theme = null)
     {
-        return $this->theme;
+        if($_theme !== null)
+            $this->theme = $_theme;
+
+        return $_theme;
     }
 
     /**
-     * @param mixed $theme
+     * @param null|string $_body
+     * @return string
      */
-    public function setTheme($theme = null)
+    public function Body(?string $_body = null)
     {
-        $this->theme = $theme;
-    }
+        if($_body !== null)
+            $this->body = $_body;
 
-    /**
-     * @return null|string
-     */
-    public function getBody()
-    {
         return $this->body;
     }
 
     /**
-     * @param null|string $body
+     * @param string $_css
+     * @return string
      */
-    public function setBody($body = null)
+    public function Css(?string $_css = null)
     {
-        $this->body = $body;
-    }
+        if($_css !== null)
+            $this->css = $_css;
 
-    /**
-     * @return null
-     */
-    public function getCss()
-    {
         return $this->css;
-    }
-
-    /**
-     * @param null $css
-     */
-    public function setCss($css)
-    {
-        $this->css = $css;
     }
 
 

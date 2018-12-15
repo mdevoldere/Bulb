@@ -12,86 +12,82 @@ if(!\defined('BULB_CACHE'))
     }
 }
 
-use Bulb\Local\LocalDir;
-use Bulb\Local\LocalFile;
+use Bulb\Local\LocalCollection;
 
-class App extends LocalDir
+class App
 {
-
-    /**
-     * Get LocalPath Object ref to BULB_CACHE.basename($_path)
-     * @param string $_path
-     * @return LocalDir
-     */
-    public static function getLocalCache(string $_path) : LocalDir
-    {
-        return LocalDir::getLocalDir((BULB_CACHE.\basename($_path)), true);
-    }
+    /** @var string $name */
+    protected $name;
 
     /** @var string $instance */
     protected $instance;
 
-    /** @var LocalDir */
+    /** @var string */
     protected $cache;
 
-    /** @var LocalFile $config */
+    /** @var string $path */
+    protected $path;
+
+    /** @var LocalCollection $config */
     protected $config;
 
-    public function __construct(string $_path, string $_instance)
+
+    public function __construct(string $_path, ?string $_instance = null)
     {
-        parent::__construct($_path, false);
+        $this->path = \trim($_path);
 
-        if(!$this->exists)
-            \trigger_error('App: Invalid App['.$this->name.']'.\_exporter($this));
+        $this->name = \basename($this->path);
 
-        $this->cache = $this->find('Cache');
+        $this->instance = !empty($_instance) ? \basename($_instance) : 'default';
 
-        if(!$this->cache->isValid())
-            $this->cache = static::getLocalCache($this->name);
+        if(empty($_path))
+            \trigger_error('App: Empty App Path['.$_path.']'.\_exporter($this));
 
-        $this->instance = \basename($_instance);
+        if(!\is_dir($this->path))
+            \trigger_error('App: Invalid App Path['.$this->name.']'.\_exporter($this));
 
-        $this->config = $this->cache->find($this->instance.'.php', true);
+        $this->cache = ($this->path.'Cache/');
 
-        $this->config->updateAll($this->find('conf.php', true), false);
+        $this->config = new LocalCollection($this->Cache($this->instance.'.php'));
+
+        $this->config->AddFile($this->Path('conf.php'));
+
+        $this->config->Load();
     }
 
-    /**
-     * @return LocalDir
-     */
-    public function getCache(): LocalDir
+    public function Name() : string
     {
-        return $this->cache;
+        return $this->name;
     }
 
-    /**
-     * @return LocalFile
-     */
-    public function getConfig() : LocalFile
-    {
-        return $this->config;
-    }
-
-
-    /**
-     * @return string
-     */
-    public function getNamespace() : string
+    public function Namespace() : string
     {
         return ($this->name.'\\');
     }
 
-    /**
-     * @return string
-     */
-    public function getInstance() : string
+    public function Instance() : string
     {
         return $this->instance;
     }
 
-    public function getControllerNamespace($_controller)
+    public function Path(?string $_suffix = null) : string
     {
-        return ($this->getNamespace().'Controllers\\'.\mb_convert_case(\basename($_controller), MB_CASE_TITLE).'Controller');
+        return ($this->path.(!empty($_suffix) ? $_suffix : ''));
+    }
+
+    public function Cache(?string $_suffix = null) : string
+    {
+        return ($this->cache.(!empty($_suffix) ? $_suffix : ''));
+    }
+
+    public function Config() : LocalCollection
+    {
+        return $this->config;
+    }
+
+    public function Controller(string $_controller) : string
+    {
+        return ($this->name.'\\Controllers\\'.\mb_convert_case(\basename($_controller), MB_CASE_TITLE).'Controller');
     }
 
 }

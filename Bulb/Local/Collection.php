@@ -7,7 +7,7 @@ namespace Bulb\Local;
  * Class Collection
  * @package Bulb\Local
  */
-class Collection extends Model implements ICollection
+class Collection
 {
 
     /** @var array $items */
@@ -15,87 +15,55 @@ class Collection extends Model implements ICollection
 
     /**
      * Collection constructor.
-     * @param string $_name
-     * @param Collection $_collection
      */
-    public function __construct(string $_name = 'Collection', Collection $_collection = null)
+    public function __construct()
     {
-        parent::__construct($_name);
 
-        $this->setCollection($_collection);
     }
 
-    /**
-     * @param Collection|null $_collection
-     * @return $this
-     */
-    public function setCollection(Collection $_collection = null)
-    {
-        if(!empty($_collection))
-            $this->updateAll($_collection, false);
 
-        return $this;
-    }
-
-    /**
-     * @return $this
-     */
-    public function clear()
+    public function Clear()
     {
         $this->items = [];
         return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function count() : int
+
+    public function Count() : int
     {
         return \count($this->items);
     }
 
 
-    /**
-     * @param string|int $_key
-     * @return bool
-     */
-    public function has($_key) : bool
+    public function Has($_key) : bool
     {
         if(empty($_key))
             return false;
 
-        if(\array_key_exists($_key, $this->items))
+        if((\is_string($_key) || is_int($_key) && \array_key_exists($_key, $this->items)))
             return true;
 
         return false;
     }
 
-    /**
-     * @param string|int $_pattern
-     * @param null|mixed $_filter
-     * @return mixed|null
-     */
-    public function find($_pattern, $_filter = null)
-    {
-        if($this->has($_pattern))
-        {
-            if($_filter === null)
-                return $this->items[$_pattern];
 
-            if($_filter === $this->items[$_pattern])
-                return $this->items[$_pattern];
+    public function Find($_key, $_default = null)
+    {
+        if((\is_string($_key) || is_int($_key)) && \array_key_exists($_key, $this->items))
+        {
+            return $this->items[$_key];
         }
 
-        return null;
+        return $_default;
     }
 
-    /**
-     * @param null|mixed $_filter
-     * @return array
-     */
-    public function findAll($_filter = null) : array
+
+    public function FindAll($_filter = null) : array
     {
-        try
+        return $this->items;
+
+
+       /* try
         {
             if(empty($_filter))
                 return $this->items;
@@ -127,35 +95,58 @@ class Collection extends Model implements ICollection
         catch(\Exception $e)
         {
             \trigger_error($e->getMessage());
-        }
+        }*/
     }
 
-    /**
-     * @param string|int|Model $pattern
-     * @param null|mixed $filter
-     * @param bool $_force
-     * @return bool
-     */
-    public function update($pattern, $filter = null) : bool
+
+
+    public function Update($_item, $_value = null) : bool
     {
-        foreach (static::buildFilter($pattern, $filter) as $k => $v)
-        {
-            $this->items[$pattern] = $filter;
-        }
-
-
-        return true;
-    }
-
-    public function remove($_filter = null): bool
-    {
-        if(!\is_string($_filter) || !\is_int($_filter))
+        if(empty($_item))
             return false;
 
-        if(\array_key_exists($_filter, $this->items))
-            unset($this->items[$_filter]);
+        if($_item instanceof Model)
+        {
+            $_value = $_item;
+            $_item = $_item->Id();
+        }
+        elseif ($_item instanceof Collection)
+        {
+            $_item = $_item->findAll();
+        }
+
+        if(\is_array($_item))
+        {
+            foreach ($_item as $k => $v)
+            {
+                $this->Update($k, $v);
+            }
+            return true;
+        }
+
+        if(!\is_string($_item) && !\is_int($_item))
+            return false;
+
+        $this->items[$_item] = $_value;
 
         return true;
+    }
+
+    public function Remove($_item = null): bool
+    {
+        if($_item instanceof Model)
+            $_item = $_item->Id();
+
+        if(empty($_item) || !\is_string($_item) || !\is_int($_item))
+            return false;
+
+        if(\array_key_exists($_item, $this->items))
+        {
+            unset($this->items[$_item]);
+            return true;
+        }
+
+        return false;
     }
 
 }

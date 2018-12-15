@@ -33,12 +33,13 @@ class BulbLoader
     public static function run(string $appName, string $appInstance)
     {
         $app = new App($appName, $appInstance);
-        static::$loader->addPsr4($app->getNamespace(), $app->getPath());
+        static::$loader->addPsr4($app->Namespace(), $app->Path());
         //exiter($loader);
-        //exiter($app, $app->getNamespace());
+        //exporter($app, $app->Namespace());
         //exporter($loader);
         $application = new Application($app);
-        $application->run();
+        //\exiter($application);
+        $application->Run();
         //exit(BULB_APP.': No App to display !');
     }
 }

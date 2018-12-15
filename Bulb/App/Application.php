@@ -2,136 +2,80 @@
 
 namespace Bulb\App;
 
-use Bulb\Http\IRequest;
 use Bulb\Http\Request;
-use Bulb\Http\Router;
-use Bulb\Local\LocalDir;
-use Bulb\Local\LocalFile;
 
 /**
  * Class App
  * @package Bulb\MVC
  */
-class Application
+class Application extends App
 {
     const DEFAULT_NAMESPACE = 'BulbApp';
 
-    /** @var App */
-    protected $app;
-
-    /** @var IRequest */
-    protected $request;
-
-    /**
-     * @return App
-     */
-    public function getApp(): App
-    {
-        return $this->app;
-    }
-
-    /**
-     * @return IRequest
-     */
-    public function getRequest() : IRequest
-    {
-        return ($this->request = $this->request ?: new Router($this->getConfig()->find('path', '/')));
-    }
+    /** @var Request */
+    protected $request = null;
 
     /** @var View */
     protected $view = null;
 
     /**
-     * @return string
+     * @param string $_path
+     * @param string $_instance
+     * Constructor
      */
-    public function getName(): string
+    public function __construct(string $_path, ?string $_instance = null)
     {
-        return $this->app->getName();
+        parent::__construct($_path, $_instance);
+
+        $this->Request();
     }
 
     /**
-     * @return string
+     * @return Request
      */
-    public function getPath(): string
+    public function Request() : Request
     {
-        return $this->app->getPath();
-    }
+        if($this->request === null)
+            $this->request = new Request($this->app->Config()->Find('path', '/'));
 
-    /**
-     * @return string
-     */
-    public function getNamespace(): string
-    {
-        return $this->app->getNamespace();
+        return $this->request;
     }
-
-    /**
-     * @return LocalDir
-     */
-    public function getCache(): LocalDir
-    {
-        return $this->app->getCache();
-    }
-
-    /**
-     * @return LocalFile
-     */
-    public function getConfig() : LocalFile
-    {
-        return $this->app->getConfig();
-    }
-
 
     /**
      * @return View
      */
-    public function getView() : View
+    public function View() : View
     {
-        $this->view = $this->view ?: new View($this->app->getPath());
+        $this->view = $this->view ?: new View($this->app->Path());
         return $this->view;
     }
 
-    /**
-     * @param App $_application
-     * @param IRequest $_request
-     * Constructor
-     */
-    public function __construct(App $_application, IRequest $_request = null)
+    public function Layout() : Layout
     {
-        $this->app = $_application;
+        $l = new Layout($this->Config()->Find('theme'));
 
-        if($_request !== null)
-            $this->request = $_request;
-
-        $this->getRequest();
-    }
-
-    public function createLayout() : Layout
-    {
-        $l = new Layout($this->getConfig()->find('theme'));
-
-        $l->setCss($this->getConfig()->find('css'));
+        $l->Css($this->Config()->Find('css'));
 
         return $l;
     }
 
-    public function run()
+    public function Run()
     {
         try
         {
-            $this->getView()->prependPath($this->getRequest()->getController());
+            $this->View()->addPath($this->Request()->Controller());
 
-            $this->getView()->addGlobal('request', $this->request->getRoute());
+            $this->View()->addGlobal('request', $this->request->Route());
 
-            $c = $this->app->getControllerNamespace($this->getRequest()->getController());
+            $c = $this->Controller($this->Request()->Controller());
 
             $c = (new $c($this));
 
-            $a = ($this->getRequest()->getAction().'Action');
+            $a = ($this->Request()->Action().'Action');
 
             if(!\method_exists($c, $a))
             {
-                throw new \InvalidArgumentException('BulbApp::InvalidAction['.$this->getRequest()->getAction().']');
+                throw new \InvalidArgumentException('BulbApp::InvalidAction['.$this->Request()->Action().']');
             }
 
             echo $c->{$a}();
@@ -146,9 +90,9 @@ class Application
         exit('No App to Run');
     }
 
-    public function getLink($path)
+    public function Link($path)
     {
-        return ($this->app->getConfig()->find('url').$path);
+        return ($this->Config()->Find('url').$path);
     }
 
 }

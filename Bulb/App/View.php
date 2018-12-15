@@ -21,11 +21,11 @@ class View
 
     /**
      * View constructor.
-     * @param $dir
+     * @param $_dir
      */
-    public function __construct($dir)
+    public function __construct(string $_dir)
     {
-        $this->rootPath = ($dir.'Views/');
+        $this->rootPath = (\rtrim($_dir, '/').'/');
     }
 
     /**
@@ -43,10 +43,10 @@ class View
     {
         if(null === $this->env)
         {
-            $loader = new \Twig_Loader_Filesystem([$this->rootPath, BULB.'Views/'], $this->rootPath);
+            $loader = new \Twig_Loader_Filesystem([$this->rootPath.'Views/', BULB.'Views/'], $this->rootPath);
 
             $this->env = new \Twig_Environment($loader, array(
-                'cache' => BULB_CACHE.'Twig/',
+                'cache' => $this->rootPath.'Cache/Twig/',
                 'debug' => true,
             ));
         }
@@ -54,19 +54,14 @@ class View
         return $this->env;
     }
 
-    public function addPath($dir)
+    public function addPath($dir, bool $_prepend = true)
     {
-        if(\is_dir($this->rootPath.$dir))
+        if(\is_dir($this->rootPath.'Views/'.$dir))
         {
-            $this->getLoader()->addPath($this->rootPath.$dir);
-        }
-    }
-
-    public function prependPath($dir)
-    {
-        if(\is_dir($this->rootPath.$dir))
-        {
-            $this->getLoader()->prependPath($this->rootPath.$dir);
+            if($_prepend === true)
+                $this->getLoader()->prependPath($this->rootPath.'Views/'.$dir);
+            else
+                $this->getLoader()->addPath($this->rootPath.'Views/'.$dir);
         }
     }
 

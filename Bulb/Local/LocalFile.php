@@ -2,8 +2,13 @@
 
 namespace Bulb\Local;
 
-class LocalFile extends Collection implements ILocal
+class LocalFile
 {
+    /**
+     * Name of current |file
+     * @var string $name
+     */
+    protected $name;
 
     /**
      * Path of current |file
@@ -17,6 +22,7 @@ class LocalFile extends Collection implements ILocal
      */
     protected $exists;
 
+
     /**
      * LocalFile constructor.
      * @param string $_path
@@ -25,106 +31,82 @@ class LocalFile extends Collection implements ILocal
     {
         $this->path = \trim($_path);
 
-        if(!LocalDir::isDir(\dirname($this->path), false))
-            \trigger_error('LocalFile::InvalidFileDir');
+        $this->name = \basename($this->path);
 
         $this->exists = \is_file($this->path);
     }
 
-    /**
-     * Is the local directory|file exists
-     * @return bool
-     */
-    public function isValid() : bool
-    {
-        return $this->exists;
-    }
-
-    public function getName() : string
+    public function Name() : string
     {
         return $this->name;
     }
 
-    /** Get Path of current directory|file
-     * @return string
-     */
-    public function getPath() : string
+    public function Path() : string
     {
         return $this->path;
     }
 
-
-
-    public function findAll($_filter = null) : array
+    public function Exists() : bool
     {
-        if(empty($this->items) && $this->isValid())
-        {
-            try
-            {
-                $a = (require $this->path);
-               // exporter($a, 'aaa');
-                $this->items = \is_array($a) ? $a : [];
-               // exporter($this, $this->name);
-            }
-            catch (\Exception $e)
-            {
-                \trigger_error($e->getMessage(), E_USER_ERROR);
-            }
-        }
+        return $this->exists;
+    }
 
-        return $this->items;
+    /**
+     * @return string
+     */
+    public function Load()
+    {
+        if($this->exists)
+            return (\file_get_contents($this->path));
+
+        return '';
     }
 
     /**
      * @param null|mixed $_data
      * @return int
      */
-    public function save($_data = null) : int
+    public function Save($_data = null) : int
     {
         try
         {
-            if(empty($_data))
-                $_data = !empty($this->items) ? $this->items : '';
-
-            if($_data instanceof IModel)
-                $_data = $_data->findAll();
+            if($_data instanceof Collection || $_data instanceof Model)
+            {
+                $_data = $_data->FindAll();
+            }
 
             if(\is_array($_data))
-                $_data = ('<?php return '.\var_export($_data, true).';');
+            {
+                $r = [];
 
-            if(!\is_string($_data) || empty($_data))
-                return 0;
+                foreach($_data as $k => $v)
+                {
+                    if($v instanceof ICollection || $v instanceof IModel)
+                        $r[$k] = $v->findAll();
+                    else
+                        $r[$k] = $v;
+                }
 
-            $r = \file_put_contents($this->path, $_data);
+                $_data = ('<?php return '.\var_export($r, true).';');
+            }
 
-            $this->exists = true;
+            if(\is_string($_data) && !empty($_data))
+            {
+                $r = \file_put_contents($this->path, $_data);
 
-            return (($r !== false) ? $r : 0);
+                if($r !== false)
+                {
+                    $this->exists = true;
+                    return $r;
+                }
+            }
+
+            return 0;
         }
         catch (\Exception $e)
         {
             return 0;
         }
-    }
-
-    /**
-     * @param null|mixed $_filter
-     * @return bool
-     */
-    public function remove($_filter = null) : bool
-    {
-        if($this->isValid())
-            $this->exists = !(\unlink($this->path));
-
-        return !$this->exists;
-    }
-
-    public function toString($_filter = null) : string
-    {
-        if($this->isValid())
-            return (\file_get_contents($this->path));
-
-        return '';
     }
 
 }

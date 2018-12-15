@@ -20,11 +20,11 @@ class Controller
     {
         $this->app = $app;
 
-        $this->layout = $this->app->createLayout();
+        $this->layout = $this->app->Layout();
 
-        $this->layout->setBody($this->app->getRequest()->getAction());
+        $this->layout->Body($this->app->Request()->Action());
 
-        $this->id = $this->app->getRequest()->getId();
+        $this->id = $this->app->Request()->Id();
 
         $this->init();
     }
@@ -32,14 +32,6 @@ class Controller
     protected function init()
     {
 
-    }
-
-    protected function getId($default = null)
-    {
-        if(($this->id === null) && ($default !== null))
-            $this->id = $default;
-
-        return $this->id;
     }
 
     protected function getIdSafe($default = null)
@@ -54,12 +46,12 @@ class Controller
         if(!Session::auth())
         {
             if(empty($redir_controller))
-                $redir_controller = Request::DEFAULT_CONTROLLER;
+                $redir_controller = 'Home';
 
             if(empty($redir_action))
-                $redir_action = Router::DEFAULT_ACTION;
+                $redir_action = 'index';
 
-            $this->app->getRequest()->goTo($redir_controller, $redir_action);
+            $this->app->Request()->redirectTo($redir_controller, $redir_action);
         }
 
         //exiter($_SESSION);
@@ -76,11 +68,11 @@ class Controller
     protected function view()
     {
        // exiter($this);
-        $this->app->getView()->addGlobal('layout', $this->layout);
-        $this->app->getView()->addGlobal('session', $_SESSION);
-        $this->app->getView()->addGlobal('site', $this->app->getConfig()->findAll());
+        $this->app->View()->addGlobal('layout', $this->layout);
+        $this->app->View()->addGlobal('session', $_SESSION);
+        $this->app->View()->addGlobal('site', $this->app->Config()->FindAll());
 
-        return $this->app->getView()->render(
+        return $this->app->View()->render(
             $this->layout->getTheme(),
             [
                 'response' => $this->vars,
@@ -91,7 +83,7 @@ class Controller
     protected function json()
     {
         return \json_encode([
-            'request' => $this->app->getRequest()->getPath(),
+            'request' => $this->app->Request()->Path(),
             'response' => $this->vars
         ]);
     }

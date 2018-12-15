@@ -13,7 +13,7 @@ class Http
      * @param mixed $default
      * @return mixed|null
      */
-    public static function get($key = null, $default = null)
+    public static function Get($key = null, $default = null)
     {
         if($key === null)
             return !empty($_GET) ? $_GET : [];
@@ -28,7 +28,7 @@ class Http
      * @param mixed $default
      * @return mixed|null
      */
-    public static function post($key = null, $default = null)
+    public static function Post($key = null, $default = null)
     {
         if($key === null)
             return !empty($_POST) ? $_POST : [];
@@ -42,7 +42,7 @@ class Http
      * @param null $key
      * @return mixed|null
      */
-    public static function files($key = null)
+    public static function Files($key = null)
     {
         if($key === null)
             return !empty($_FILES) ? $_FILES : [];
@@ -57,7 +57,7 @@ class Http
      * @param null $value
      * @return mixed
      */
-    public static function session($key = null, $value = null)
+    public static function Session($key = null, $value = null)
     {
         if($key === null)
             return !empty($_SESSION) ? $_SESSION : [];
@@ -71,7 +71,7 @@ class Http
     }
 
 
-    public static function parseUrl(string $key = '') : array
+    public static function ParseUrl(string $key = '') : array
     {
         if(empty($key))
             $key = 'url';
@@ -81,13 +81,13 @@ class Http
         return \array_key_exists($key, $_GET) ? \explode('/', $_GET[$key]) : [];
     }
 
-    public static function getRequest()
+    public static function Request()
     {
         return [
-            'session' => self::session(),
-            'get' => self::get(),
-            'post' => self::post(),
-            'files' => self::files(),
+            'session' => self::Session(),
+            'get' => self::Get(),
+            'post' => self::Post(),
+            'files' => self::Files(),
         ];
     }
 }
