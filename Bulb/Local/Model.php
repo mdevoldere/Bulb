@@ -5,14 +5,58 @@ namespace Bulb\Local;
 /**
  * Class Model
  * @package Bulb\Local
- * @see \Bulb\Local\IModel
  */
 class Model
 {
-    /**
-     * @var string|int $id
+    /** Check if given $key is a "not empty string"
+     * @param null $_key
+     * @return bool
      */
-    protected $id;
+    public static function IsValidProperty($_key = null)
+    {
+        return (!empty($_key) && \is_string($_key));
+    }
+
+    public static function IsValidKey($_key = null)
+    {
+        return (!empty($_key) && (\is_string($_key) || is_int($_key)));
+    }
+
+    /** Recursivly Convert _collection to array
+     * @param array|Model $_collection collection to browse
+     * @return array
+     */
+    public static function ArrayExport($_collection) : array
+    {
+        if($_collection instanceof Model)
+            $_collection = $_collection->FindAll();
+
+        if(!\is_array($_collection))
+            return [];
+
+        $r = [];
+
+        foreach($_collection as $k => $v)
+        {
+            if($v instanceof Model)
+                $v = $v->ToArray();
+            elseif (\is_object($v))
+                $v = \get_object_vars($v);
+
+            if(\is_array($v))
+                $r[$k] = Model::ArrayExport($v);
+            else
+                $r[$k] = $v;
+        }
+
+        return $r;
+    }
+
+    /**
+     * Model Unique ID
+     * @var int|string $id
+     */
+    public $id;
 
     /**
      * Base Model
@@ -20,37 +64,39 @@ class Model
      */
     public function __construct($_id = null)
     {
-        $this->Id($_id);
+        $this->id = $_id;
     }
 
-    public function Id($_id = null)
-    {
-        if(!empty($_id) && (\is_string($_id) || \is_int($_id)))
-            $this->id = $_id;
-
-        return $this->id;
-    }
-
+    /**
+     * Is Model valid
+     * @return bool
+     */
     public function IsValid() : bool
     {
         return !empty($this->id);
     }
 
-    public function ToArray() : array
+    /** Get all Model keys/values as array. Values are returned "as they are"
+     * @return array
+     */
+    public function FindAll() : array
     {
         return \get_object_vars($this);
     }
 
-    public function ToString() : string
+    /** Get all Model keys/values as array. Values using "Model class" are converted to array
+     * @return array
+     */
+    public function ToArray() : array
     {
-        $s = (\basename(\get_called_class()).'::'.$this->id."\n");
+        return Model::ArrayExport($this);
+    }
 
-        foreach ($this->ToArray() as $k => $v)
-        {
-            if(\is_string($v) || \is_numeric($v))
-                $s .= ($k.': '.$v."\n");
-        }
-
-        return $s;
+    /** Get current Model as json object
+     * @return string
+     */
+    public function ToJson() : string
+    {
+        return \json_encode(static::ToArray());
     }
 }

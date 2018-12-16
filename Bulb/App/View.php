@@ -12,6 +12,9 @@ class View
         return ($name.self::VIEW_EXT);
     }
 
+    protected $layout = 'layout';
+
+    protected $body = null;
 
     protected $rootPath;
 
@@ -29,17 +32,42 @@ class View
     }
 
     /**
+     * @param mixed $_layout
+     * @return string
+     */
+    public function Layout(?string $_layout = null)
+    {
+        if($_layout !== null)
+            $this->layout = \trim($_layout);
+
+        return $this->layout;
+    }
+
+    /**
+     * @param null|string $_body
+     * @return string
+     */
+    public function Body(?string $_body = null)
+    {
+        if($_body !== null)
+            $this->body = \trim($_body);
+
+        return $this->body;
+    }
+
+
+    /**
      * @return \Twig_LoaderInterface|\Twig_Loader_Filesystem
      */
-    public function getLoader()
+    public function Loader()
     {
-        return $this->getEnv()->getLoader();
+        return $this->Env()->getLoader();
     }
 
     /**
      * @return \Twig_Environment
      */
-    public function getEnv()
+    public function Env()
     {
         if(null === $this->env)
         {
@@ -54,30 +82,34 @@ class View
         return $this->env;
     }
 
-    public function addPath($dir, bool $_prepend = true)
+    public function AddPath($dir, bool $_prepend = true)
     {
         if(\is_dir($this->rootPath.'Views/'.$dir))
         {
             if($_prepend === true)
-                $this->getLoader()->prependPath($this->rootPath.'Views/'.$dir);
+                $this->Loader()->prependPath($this->rootPath.'Views/'.$dir);
             else
-                $this->getLoader()->addPath($this->rootPath.'Views/'.$dir);
+                $this->Loader()->addPath($this->rootPath.'Views/'.$dir);
         }
     }
 
-    public function addGlobal($name, $value)
+    public function AddGlobal($name, $value)
     {
-        $this->getEnv()->addGlobal($name, $value);
+        $this->Env()->addGlobal($name, $value);
     }
 
-    public function render($template, array $vars = [])
+    public function Render(array $vars = [])
     {
-        return $this->getEnv()->render(static::getFileName($template), $vars);
+        if($this->body !== null)
+            $vars['body'] = $this->body;
+
+
+        return $this->Env()->render(static::getFileName($this->layout), $vars);
     }
 
-    public function display($template, array $vars = [])
+    public function Display(array $vars = [])
     {
-        echo $this->render($template, $vars);
+        echo $this->Render($vars);
         exit;
     }
 }

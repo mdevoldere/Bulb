@@ -70,9 +70,9 @@ class LocalFile
     {
         try
         {
-            if($_data instanceof Collection || $_data instanceof Model)
+            if($_data instanceof Collection)
             {
-                $_data = $_data->FindAll();
+                $_data = $_data->ToArray();
             }
 
             if(\is_array($_data))

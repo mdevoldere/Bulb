@@ -22,11 +22,11 @@ class App
     /** @var string $instance */
     protected $instance;
 
-    /** @var string */
-    protected $cache;
-
     /** @var string $path */
     protected $path;
+
+    /** @var string */
+    protected $cache;
 
     /** @var LocalCollection $config */
     protected $config;

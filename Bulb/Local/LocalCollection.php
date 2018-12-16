@@ -3,7 +3,7 @@
 namespace Bulb\Local;
 
 
-class LocalCollection extends Collection implements ILocal
+class LocalCollection extends Collection
 {
     protected $localFile;
 
@@ -35,7 +35,7 @@ class LocalCollection extends Collection implements ILocal
 
     public function Save($_data = null) : int
     {
-        return $this->localFile->Save($_data);
+        return $this->localFile->Save($this->items);
     }
 
     public function AddFile(string $_path) : bool

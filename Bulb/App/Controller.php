@@ -11,20 +11,15 @@ class Controller
     /** @var Application  */
     protected $app;
 
-    /** @var  Layout */
-    protected $layout;
-
     protected $vars = [];
 
     public function __construct(Application $app)
     {
         $this->app = $app;
 
-        $this->layout = $this->app->Layout();
+        $app->View()->Layout($app->Config()->Find('theme'));
 
-        $this->layout->Body($this->app->Request()->Action());
-
-        $this->id = $this->app->Request()->Id();
+        $app->View()->Body($app->Route()->Action());
 
         $this->init();
     }
@@ -34,15 +29,13 @@ class Controller
 
     }
 
-    protected function getIdSafe($default = null)
+    protected function RequestId()
     {
-        return \basename($this->getId($default));
+        return $this->app->Route()->Id();
     }
 
     protected function auth(string $redir_controller = '', string $redir_action = '')
     {
-        Session::setUsers();
-
         if(!Session::auth())
         {
             if(empty($redir_controller))
@@ -51,7 +44,7 @@ class Controller
             if(empty($redir_action))
                 $redir_action = 'index';
 
-            $this->app->Request()->redirectTo($redir_controller, $redir_action);
+            $this->app->Route()->redirectTo($redir_controller, $redir_action);
         }
 
         //exiter($_SESSION);
@@ -62,29 +55,25 @@ class Controller
     public function setVar($key, $value)
     {
         $this->vars[$key] = $value;
-
+        return $this;
     }
 
     protected function view()
     {
-       // exiter($this);
-        $this->app->View()->addGlobal('layout', $this->layout);
-        $this->app->View()->addGlobal('session', $_SESSION);
-        $this->app->View()->addGlobal('site', $this->app->Config()->FindAll());
+       //\exiter($this);
 
-        return $this->app->View()->render(
-            $this->layout->getTheme(),
-            [
-                'response' => $this->vars,
-            ]
-        );
+        return $this->app->View()->Render([
+            'response' => $this->vars,
+            'site' => $this->app->Config()->ToArray(),
+            'session' => $_SESSION,
+        ]);
     }
 
     protected function json()
     {
         return \json_encode([
-            'request' => $this->app->Request()->Path(),
-            'response' => $this->vars
+            'request' => $this->app->Route()->Path(),
+            'response' => $this->vars,
         ]);
     }
 

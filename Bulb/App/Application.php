@@ -3,6 +3,7 @@
 namespace Bulb\App;
 
 use Bulb\Http\Request;
+use Bulb\Http\Route;
 
 /**
  * Class App
@@ -12,8 +13,8 @@ class Application extends App
 {
     const DEFAULT_NAMESPACE = 'BulbApp';
 
-    /** @var Request */
-    protected $request = null;
+    /** @var Route */
+    protected $route = null;
 
     /** @var View */
     protected $view = null;
@@ -27,18 +28,20 @@ class Application extends App
     {
         parent::__construct($_path, $_instance);
 
-        $this->Request();
+        $this->Route();
     }
 
     /**
-     * @return Request
+     * @return Route
      */
-    public function Request() : Request
+    public function Route() : Route
     {
-        if($this->request === null)
-            $this->request = new Request($this->app->Config()->Find('path', '/'));
+        if($this->route === null)
+        {
+            $this->route = new Route($this->Config()->Find('path', '/'), 'url');
+        }
 
-        return $this->request;
+        return $this->route;
     }
 
     /**
@@ -46,36 +49,27 @@ class Application extends App
      */
     public function View() : View
     {
-        $this->view = $this->view ?: new View($this->app->Path());
+        $this->view = $this->view ?: new View($this->Path());
         return $this->view;
-    }
-
-    public function Layout() : Layout
-    {
-        $l = new Layout($this->Config()->Find('theme'));
-
-        $l->Css($this->Config()->Find('css'));
-
-        return $l;
     }
 
     public function Run()
     {
         try
         {
-            $this->View()->addPath($this->Request()->Controller());
+            $this->View()->AddPath($this->Route()->Controller());
 
-            $this->View()->addGlobal('request', $this->request->Route());
+            $this->View()->AddGlobal('request', $this->route);
 
-            $c = $this->Controller($this->Request()->Controller());
+            $c = $this->Controller($this->route->Controller());
 
             $c = (new $c($this));
 
-            $a = ($this->Request()->Action().'Action');
+            $a = ($this->route->Action().'Action');
 
             if(!\method_exists($c, $a))
             {
-                throw new \InvalidArgumentException('BulbApp::InvalidAction['.$this->Request()->Action().']');
+                throw new \InvalidArgumentException('BulbApp::InvalidAction['.$this->route->Action().']');
             }
 
             echo $c->{$a}();
