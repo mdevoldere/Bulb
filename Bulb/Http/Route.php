@@ -63,7 +63,7 @@ class Route
 
     protected function _RouteItem(int $_pos, ?string $_item = null) : ?string
     {
-        if ($_item !== null)
+        if (!empty($_item))
             $this->routeIndex[$_pos] = (\trim(\strip_tags($_item)));
 
         return \array_key_exists($_pos, $this->routeIndex) ? $this->routeIndex[$_pos] : null;
@@ -98,7 +98,8 @@ class Route
 
     public function Path(?string $_controller = null, ?string $_action = null, ?string $_id = null) : string
     {
-        $this->Route([$_controller, $_action, $_id]);
+        if(!empty($_controller))
+            $this->Route([$_controller, $_action, $_id]);
 
         return $this->path;
     }

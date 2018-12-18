@@ -17,6 +17,12 @@ class LocalFile
     protected $path;
 
     /**
+     * Path of current |file
+     * @var string $path
+     */
+    protected $dirname;
+
+    /**
      * Is the local file exists
      * @var bool $exists
      */
@@ -31,6 +37,8 @@ class LocalFile
     {
         $this->path = \trim($_path);
 
+        $this->dirname = \dirname($_path).'/';
+
         $this->name = \basename($this->path);
 
         $this->exists = \is_file($this->path);
@@ -44,6 +52,11 @@ class LocalFile
     public function Path() : string
     {
         return $this->path;
+    }
+
+    public function Dirname() : string
+    {
+        return $this->dirname;
     }
 
     public function Exists() : bool
@@ -81,8 +94,8 @@ class LocalFile
 
                 foreach($_data as $k => $v)
                 {
-                    if($v instanceof ICollection || $v instanceof IModel)
-                        $r[$k] = $v->findAll();
+                    if($v instanceof Collection || $v instanceof Model)
+                        $r[$k] = $v->ToArray();
                     else
                         $r[$k] = $v;
                 }

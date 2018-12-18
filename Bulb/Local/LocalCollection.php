@@ -27,6 +27,11 @@ class LocalCollection extends Collection
         $this->localFile->Path();
     }
 
+    public function Dirname() : string
+    {
+        $this->localFile->Dirname();
+    }
+
     public function Load()
     {
         if($this->localFile->Exists())
@@ -35,7 +40,7 @@ class LocalCollection extends Collection
 
     public function Save($_data = null) : int
     {
-        return $this->localFile->Save($this->items);
+        return $this->localFile->Save($this->ToArray());
     }
 
     public function AddFile(string $_path) : bool
