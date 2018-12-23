@@ -2,8 +2,7 @@
 
 namespace Bulb\App;
 
-use Bulb\Http\Request;
-use Bulb\Http\Router;
+use Bulb\Local\Secure;
 use Bulb\Http\Session;
 
 class Controller
@@ -31,7 +30,7 @@ class Controller
 
     protected function RequestId()
     {
-        return $this->app->Route()->Id();
+        return Secure::ValueOrDefault($this->app->Route()->Id());
     }
 
     protected function auth(string $redir_controller = '', string $redir_action = '')
@@ -63,6 +62,7 @@ class Controller
        //\exiter($this);
 
         return $this->app->View()->Render([
+            'request' => $this->app->Route()->Route(),
             'response' => $this->vars,
             'site' => $this->app->Config()->ToArray(),
             'session' => $_SESSION,
@@ -72,7 +72,7 @@ class Controller
     protected function json()
     {
         return \json_encode([
-            'request' => $this->app->Route()->Path(),
+            'request' => $this->app->Route()->Route(),
             'response' => $this->vars,
         ]);
     }

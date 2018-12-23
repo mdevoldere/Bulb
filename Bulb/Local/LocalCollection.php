@@ -3,7 +3,7 @@
 namespace Bulb\Local;
 
 
-class LocalCollection extends Collection
+class LocalCollection extends Collection implements ILocalFile
 {
     protected $localFile;
 
@@ -29,7 +29,7 @@ class LocalCollection extends Collection
 
     public function Dirname() : string
     {
-        $this->localFile->Dirname();
+        return $this->localFile->Dirname();
     }
 
     public function Load()

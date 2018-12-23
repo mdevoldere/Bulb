@@ -2,22 +2,22 @@
 
 namespace Bulb\Local;
 
-class LocalFile
+class LocalFile implements ILocalFile
 {
     /**
-     * Name of current |file
+     * Name of current file
      * @var string $name
      */
     protected $name;
 
     /**
-     * Path of current |file
+     * Path of current file
      * @var string $path
      */
     protected $path;
 
     /**
-     * Path of current |file
+     * Path of current file
      * @var string $path
      */
     protected $dirname;

@@ -1,18 +1,28 @@
 <?php
 
-namespace Bulb\Models;
+namespace Bulb\Models\Image;
 
 
+use Bulb\App\App;
 use Bulb\Local\LocalCollection;
 use Bulb\Local\LocalDir;
 
 
 class Images extends LocalCollection
 {
+    protected $webPath;
 
-    public function __construct(string $_path)
+    protected $imgPath;
+
+    public function __construct(App $_app, string $_dirname = 'images')
     {
-        parent::__construct($_path.'images.php');
+        $_dirname = \basename($_dirname);
+
+        parent::__construct($_app->Cache('img-'.$_dirname.'.php'));
+
+        $this->webPath = $_app->WebPath($_dirname.'/');
+
+        $this->imgPath = ($_app->InstancePath($_dirname.'/'));
     }
 
     public function Image(string $_name) : ?string
@@ -39,18 +49,18 @@ class Images extends LocalCollection
 
     public function LoadImages()
     {
-        $a = LocalDir::globDir($this->localFile->Dirname(), '*.jpg');
+        $a = LocalDir::globDir($this->imgPath, '*.jpg');
 
         foreach ($a as $img)
         {
-            $this->items[$img] = $img;
+            $this->items[$img] = ($this->webPath.$img);
         }
 
         if($this->Count() > 0)
         {
-            $this->localFile->Save($this);
-            $this->imFirst = \reset($this->items);
-            $this->imRand = $this->items[\rand(0, ($this->Count() -1))];
+            $this->localFile->Save($this->items);
+            //$this->imFirst = \reset($this->items);
+            //$this->imRand = $this->items[\rand(0, ($this->Count() -1))];
         }
     }
 

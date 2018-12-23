@@ -8,20 +8,6 @@ namespace Bulb\Local;
  */
 class Model
 {
-    /** Check if given $key is a "not empty string"
-     * @param null $_key
-     * @return bool
-     */
-    public static function IsValidProperty($_key = null)
-    {
-        return (!empty($_key) && \is_string($_key));
-    }
-
-    public static function IsValidKey($_key = null)
-    {
-        return (!empty($_key) && (\is_string($_key) || is_int($_key)));
-    }
-
     /** Recursivly Convert _collection to array
      * @param array|Model $_collection collection to browse
      * @return array

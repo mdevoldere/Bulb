@@ -24,14 +24,16 @@ class Collection extends Model
         return \count($this->items);
     }
 
-    public function Has($_key) : bool
+    public function Has($_key = null) : ?string
     {
-        return (Model::IsValidKey($_key) && \array_key_exists($_key, $this->items));
+        $_key = Secure::Key($_key);
+        return ((($_key !== null) && \array_key_exists($_key, $this->items)) ? $_key : null);
     }
 
-    public function Find($_key, $_default = null)
+    public function Find($_key)
     {
-        return ($this->Has($_key) ? $this->items[$_key] : $_default);
+        $_key = $this->Has($_key);
+        return (($_key !== null) ? $this->items[$_key] : null);
     }
 
     public function FindAll() : array
@@ -60,7 +62,7 @@ class Collection extends Model
             return true;
         }
 
-        if(Model::IsValidKey($_item))
+        if((null !== ($_item = Secure::Key($_item))))
         {
             $this->items[$_item] = $_value;
             return true;
@@ -74,7 +76,16 @@ class Collection extends Model
         if($_item instanceof Model)
             $_item = $_item->id;
 
-        if($this->Has($_item))
+        if(\is_array($_item))
+        {
+            foreach ($_item as $v)
+            {
+                $this->Remove($v);
+            }
+            return true;
+        }
+
+        if((null !== ($_item = $this->Has($_item))))
         {
             unset($this->items[$_item]);
             return true;
