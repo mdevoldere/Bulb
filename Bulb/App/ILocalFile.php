@@ -5,7 +5,7 @@
  * Date: 23/12/2018
  * Time: 13:00
  */
-namespace Bulb\Local;
+namespace Bulb\App;
 
 interface ILocalFile
 {

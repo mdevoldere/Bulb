@@ -18,8 +18,8 @@ class BulbLoader
     {
         static::setLoader($_loader);
 
-        \set_error_handler('\\Bulb\\Local\\Exception\\Exception::err');
-        \set_exception_handler('\\Bulb\\Local\\Exception\\Exception::exc');
+        \set_error_handler('\\Bulb\\Http\\Exception\\Exception::err');
+        \set_exception_handler('\\Bulb\\Http\\Exception\\Exception::exc');
 
         if(\defined('BULB_APP') && \defined('BULB_INSTANCE'))
             static::run(BULB_APP, BULB_INSTANCE);
@@ -32,7 +32,7 @@ class BulbLoader
 
     public static function run(string $appName, string $appInstance)
     {
-        $app = new Application($appName, $appInstance);
+        $app = new App($appName, $appInstance);
         static::$loader->addPsr4($app->Namespace(), $app->Path());
         //exiter($loader);
         //exporter($app, $app->Namespace());

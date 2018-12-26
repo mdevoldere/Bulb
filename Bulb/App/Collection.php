@@ -1,17 +1,31 @@
 <?php
 
-namespace Bulb\Local;
+namespace Bulb\App;
 
 /**
  * Class Collection
  * @package Bulb\Local
  */
-class Collection extends Model
+class Collection implements IModel
 {
-
     /** @var array $items */
-    protected $items = [];
+    protected $items;
 
+
+    public function __construct( array $_collection = [])
+    {
+        $this->items = $_collection;
+    }
+
+    public function FindAll() : array
+    {
+        return $this->items;
+    }
+
+    public function ToArray() : array
+    {
+        return Local::ArrayExport($this->FindAll());
+    }
 
     public function Clear()
     {
@@ -26,7 +40,7 @@ class Collection extends Model
 
     public function Has($_key = null) : ?string
     {
-        $_key = Secure::Key($_key);
+        $_key = Local::Key($_key);
         return ((($_key !== null) && \array_key_exists($_key, $this->items)) ? $_key : null);
     }
 
@@ -34,11 +48,6 @@ class Collection extends Model
     {
         $_key = $this->Has($_key);
         return (($_key !== null) ? $this->items[$_key] : null);
-    }
-
-    public function FindAll() : array
-    {
-        return $this->items;
     }
 
     public function Update($_item, $_value = null) : bool
@@ -62,7 +71,7 @@ class Collection extends Model
             return true;
         }
 
-        if((null !== ($_item = Secure::Key($_item))))
+        if((null !== ($_item = Local::Key($_item))))
         {
             $this->items[$_item] = $_value;
             return true;

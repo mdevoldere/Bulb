@@ -1,10 +1,6 @@
 <?php
-/**
- * Created by Devoldere.net.
- * User: Mickael DEVOLDERE <support@devoldere.net>
- */
 
-namespace Bulb\Local\Exception;
+namespace Bulb\Http\Exception;
 
 
 class Exception extends \Exception

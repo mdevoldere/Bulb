@@ -2,8 +2,7 @@
 
 namespace Bulb\App;
 
-use Bulb\Local\LocalCollection;
-use Bulb\Local\LocalFile;
+use Bulb\Http\Route;
 
 class App
 {
@@ -19,19 +18,21 @@ class App
     /** @var string $webPath */
     protected $webPath;
 
-    /** @var string */
-    protected $cache;
+    /** @var Route */
+    protected $route = null;
 
     /** @var LocalCollection $config */
     protected $config;
 
+    /** @var View */
+    protected $view = null;
 
-    public function __construct(?string $_path, ?string $_instance = 'Web')
+    public function __construct(string $_path, string $_instance = 'Web')
     {
         if(empty($_path))
             \trigger_error('App: Empty App Path[]'.\_exporter($this));
 
-        $this->path = \trim($_path);
+        $this->path = (\rtrim($_path, '/').'/');
 
         $this->name = \basename($this->path);
 
@@ -40,16 +41,48 @@ class App
 
         $this->instance = !empty($_instance) ? \basename($_instance) : 'Web';
 
-        $this->cache = ($this->path.'Cache/');
-
-        $this->config = $this->CacheCollection('conf');
-
-        $this->config->AddFile($this->Path('conf.php'));
-
+        $this->config = new LocalCollection($this->Cache('conf.php'));
+        $this->config->Load($this->path.'conf.php');
         $this->config->Load();
 
-        $this->webPath = $this->Config()->Find('path');
+        $this->webPath = $this->config->Find('path');
+
+        $this->Route();
+
+        //\exiter($this);
     }
+
+    public function Run()
+    {
+        try
+        {
+            $this->View()->AddPath($this->Route()->Controller());
+
+            $this->View()->AddGlobal('request', $this->route);
+
+            $c = $this->Controller($this->route->Controller());
+
+            $c = (new $c($this));
+
+            $a = ($this->route->Action().'Action');
+
+            if(!\method_exists($c, $a))
+            {
+                throw new \InvalidArgumentException('BulbApp::InvalidAction['.$this->route->Action().']');
+            }
+
+            echo $c->{$a}();
+            exit();
+        }
+        catch(\Exception $ex)
+        {
+            \exporter($ex, 'Exception');
+            \exiter($this, 'App');
+        }
+
+        exit('No App to Run');
+    }
+
 
     public function Name() : string
     {
@@ -71,9 +104,11 @@ class App
         return ($this->webPath.(!empty($_suffix) ? $_suffix : ''));
     }
 
-    public function Cache(?string $_suffix = null) : string
+    public function Cache(?string $_filename = null) : string
     {
-        return ($this->cache.(!empty($_suffix) ? ($this->instance.'-'.$_suffix) : ''));
+        $_filename = \basename($_filename);
+
+        return ($this->path.'Cache/'.(!empty($_filename) ? ($this->instance.'-'.$_filename) : ''));
     }
 
     public function Config() : LocalCollection
@@ -81,10 +116,31 @@ class App
         return $this->config;
     }
 
-
     public function Namespace() : string
     {
         return ($this->name.'\\');
+    }
+
+    /**
+     * @return Route
+     */
+    public function Route() : Route
+    {
+        if($this->route === null)
+        {
+            $this->route = new Route($this->Config()->Find('path'), 'url');
+        }
+
+        return $this->route;
+    }
+
+    /**
+     * @return View
+     */
+    public function View() : View
+    {
+        $this->view = $this->view ?: new View($this->Path());
+        return $this->view;
     }
 
     public function InstancePath(?string $_suffix = null) : string
@@ -92,19 +148,13 @@ class App
         return ($this->Path($this->instance.'/').(!empty($_suffix) ? $_suffix : ''));
     }
 
-    public function CacheFile(string $_filename) : LocalFile
-    {
-        return new LocalFile($this->Cache($_filename.'.php'));
-    }
-
-    public function CacheCollection(string $_filename) : LocalCollection
-    {
-        return new LocalCollection($this->Cache($_filename.'.php'));
-    }
-
     public function Controller(string $_controller) : string
     {
         return ($this->name.'\\Controllers\\'.\mb_convert_case(\basename($_controller), MB_CASE_TITLE).'Controller');
     }
 
+    public function LocalDb(string $_filename, array $_struct = []) : LocalDb
+    {
+        return new LocalDb($this, $_filename, $_struct);
+    }
 }

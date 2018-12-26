@@ -2,23 +2,27 @@
 
 namespace Bulb\App;
 
-use Bulb\Local\Secure;
+use Bulb\Http\Http;
 use Bulb\Http\Session;
 
 class Controller
 {
-    /** @var Application  */
+    /** @var App  */
     protected $app;
+
+    protected $post;
 
     protected $vars = [];
 
-    public function __construct(Application $app)
+    public function __construct(App $app)
     {
         $this->app = $app;
 
         $app->View()->Layout($app->Config()->Find('theme'));
 
         $app->View()->Body($app->Route()->Action());
+
+        $this->post = Http::Post();
 
         $this->init();
     }
@@ -30,7 +34,7 @@ class Controller
 
     protected function RequestId()
     {
-        return Secure::ValueOrDefault($this->app->Route()->Id());
+        return Local::ValueOrDefault($this->app->Route()->Id());
     }
 
     protected function auth(string $redir_controller = '', string $redir_action = '')

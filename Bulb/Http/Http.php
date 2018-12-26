@@ -4,7 +4,7 @@
 namespace Bulb\Http;
 
 
-use Bulb\Local\Secure;
+use Bulb\App\Secure;
 
 class Http
 {

@@ -3,7 +3,7 @@
 namespace Bulb\Models\Image;
 
 
-use Bulb\Local\Model;
+use Bulb\App\Model;
 
 class Pic extends Model
 {

@@ -3,7 +3,7 @@
 namespace Bulb\Models;
 
 
-use Bulb\Local\Model;
+use Bulb\App\Model;
 
 class Contact extends Model
 {

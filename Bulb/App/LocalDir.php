@@ -1,6 +1,6 @@
 <?php
 
-namespace Bulb\Local;
+namespace Bulb\App;
 
 
 class LocalDir extends LocalFile

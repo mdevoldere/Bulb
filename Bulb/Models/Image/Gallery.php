@@ -2,8 +2,8 @@
 
 namespace Bulb\Models;
 
-use Bulb\Local\LocalDir;
-use Bulb\Local\Model;
+use Bulb\App\LocalDir;
+use Bulb\App\Model;
 
 
 class Gallery extends Model

@@ -3,16 +3,11 @@
 namespace Bulb\Models;
 
 
-use Bulb\Local\Model;
+use Bulb\App\LocalModel;
 
-class Category extends Model
+class Category extends LocalModel
 {
 
-    public $description;
+    public $description = 'Category';
 
-    public function __construct(?string $_name = null)
-    {
-        parent::__construct($_name);
-
-    }
 }
