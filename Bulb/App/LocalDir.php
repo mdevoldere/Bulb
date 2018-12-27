@@ -2,51 +2,34 @@
 
 namespace Bulb\App;
 
-
+/**
+ * Class LocalDir
+ * @package Bulb\App
+ * @deprecated
+ */
 class LocalDir extends LocalFile
 {
+    /**
+     * @param string|null $_path
+     * @param bool $_create
+     * @return bool
+     * @deprecated
+     */
     public static function isDir(string $_path = null, bool $_create = false) : bool
     {
-        if(empty($_path))
-            return false;
-
-        if(($_create === true) && (!\is_dir($_path) && (!\is_file($_path))))
-        {
-            try
-            {
-                \mkdir($_path);
-                \sleep(1);
-            }
-            catch (\Exception $e)
-            {
-                \trigger_error('Local::isDir::NoAccess');
-            }
-        }
-
-        return \is_dir($_path);
+        return Local::isDir($_path, $_create);
     }
 
     /**
      * Browse items inside $_path
      * @param string $_path
-     * @param string $filter
+     * @param string $_filter
      * @return array
+     * @deprecated
      */
-    public static function globDir(string $_path, string $filter = null)
+    public static function globDir(string $_path, string $_filter = null)
     {
-        if(!LocalDir::isDir($_path, false))
-            return [];
-
-        $filter = $filter ?: '*';
-
-        $g = [];
-
-        foreach(\glob($_path.'{'.$filter.'}', GLOB_BRACE) as $f)
-        {
-            $g[$f] = \basename($f);
-        }
-
-        return $g;
+        return Local::globDir($_path, $_filter);
     }
 
 
@@ -54,6 +37,7 @@ class LocalDir extends LocalFile
      * LocalDir constructor.
      * @param string $_path
      * @param bool $_create
+     * @deprecated
      */
     public function __construct(string $_path, bool $_create = false)
     {

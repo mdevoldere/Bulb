@@ -31,7 +31,7 @@ class Contact extends Model
         $this->name = $_name;
     }
 
-    public function IsValid() : bool
+    public function Validate() : bool
     {
         return (!empty($this->name)
              && !empty($this->email)

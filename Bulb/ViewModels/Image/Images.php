@@ -22,7 +22,7 @@ class Images extends LocalCollection
 
         $this->webPath = $_app->WebPath($_dirname.'/');
 
-        $this->imgPath = ($_app->InstancePath($_dirname.'/'));
+        $this->imgPath = ($_app->LocalWebPath($_dirname.'/'));
 
         $this->Load();
     }
@@ -33,7 +33,7 @@ class Images extends LocalCollection
 
         if($im !== null)
         {
-            return ($this->localFile->Dirname().$im);
+            return ($this->path->Dirname().$im);
         }
 
         return [];
@@ -62,7 +62,7 @@ class Images extends LocalCollection
 
         if($this->Count() > 0)
         {
-            $this->localFile->Save($this->items);
+            $this->path->Save($this->items);
             //$this->imFirst = \reset($this->items);
             //$this->imRand = $this->items[\rand(0, ($this->Count() -1))];
         }

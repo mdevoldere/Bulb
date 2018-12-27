@@ -35,7 +35,7 @@ class Http
         if($key === null)
             return !empty($_POST) ? $_POST : [];
 
-        return \array_key_exists($key, $_POST) ? Secure::ValueOrDefault($_POST[$key]) : $default;
+        return \array_key_exists($key, $_POST) ? $_POST[$key] : $default;
     }
 
     /**
@@ -70,6 +70,12 @@ class Http
         }
 
         return \array_key_exists($key, $_SESSION) ? $_SESSION[$key] : null;
+    }
+
+    public static function UnsetSession(string $key)
+    {
+        if(\array_key_exists($key, $_SESSION))
+            unset($_SESSION[$key]);
     }
 
 

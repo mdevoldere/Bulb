@@ -2,7 +2,12 @@
 
 namespace Bulb\App;
 
-class LocalFile implements ILocalFile
+/**
+ * Class LocalFile
+ * @package Bulb\App
+ * @deprecated
+ */
+class LocalFile
 {
     /**
      * Name of current file
@@ -32,6 +37,7 @@ class LocalFile implements ILocalFile
     /**
      * LocalFile constructor.
      * @param string $_path
+     * @deprecated
      */
     public function __construct(string $_path)
     {

@@ -4,42 +4,68 @@ namespace Bulb\App;
 
 /**
  * Class Model
- * @package Bulb\Local
+ * @package Bulb\App
  */
-class Model implements IModel
+abstract class Model
 {
     /**
      * Model Unique ID
-     * @var int|string $id
+     * @var int $id
      */
     public $id;
 
     /**
      * Base Model
-     * @param int|string $_id
+     * @param array|Model $_values
      */
-    public function __construct($_id = null)
+    public function __construct($_values = [])
     {
-        $this->id = $_id;
+        $this->id = 0;
+
+        if(!empty($_values))
+            $this->Update($_values);
+    }
+
+    /** Get Model items 'as it'
+     * @return array
+     */
+    public function FindAll() : array
+    {
+        return \get_object_vars($this);
+    }
+
+    /**
+     * @param array|Model $_item
+     * @return bool
+     */
+    public function Update($_item) : bool
+    {
+        if($_item instanceof Model)
+            $_item = $_item->FindAll();
+
+        if(!empty($_item) && \is_array($_item))
+        {
+            foreach ($this as $k => $v)
+            {
+                if(\array_key_exists($k, $_item))
+                {
+                    $this->{$k} = $_item[$k];
+                }
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     /**
      * Is Model valid
      * @return bool
      */
-    public function IsValid() : bool
+    public function Validate() : bool
     {
-        return !empty($this->id);
+        $this->id = \intval($this->id);
+        return true;
     }
-
-    public function FindAll() : array
-    {
-        return \get_object_vars($this);
-    }
-
-    public function ToArray() : array
-    {
-        return Local::ArrayExport($this->FindAll());
-    }
-
 }

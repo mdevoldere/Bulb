@@ -34,7 +34,7 @@ class Controller
 
     protected function RequestId()
     {
-        return Local::ValueOrDefault($this->app->Route()->Id());
+        return $this->app->Route()->Id();
     }
 
     protected function auth(string $redir_controller = '', string $redir_action = '')

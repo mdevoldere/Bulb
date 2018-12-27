@@ -2,6 +2,7 @@
 
 namespace Bulb\App;
 
+use Bulb\Http\Http;
 use Bulb\Http\Route;
 
 class App
@@ -41,7 +42,7 @@ class App
 
         $this->instance = !empty($_instance) ? \basename($_instance) : 'Web';
 
-        $this->config = new LocalCollection($this->Cache('conf.php'));
+        $this->config = new Collection($this->Cache('conf.php'));
         $this->config->Load($this->path.'conf.php');
         $this->config->Load();
 
@@ -72,6 +73,7 @@ class App
             }
 
             echo $c->{$a}();
+            Http::UnsetSession('success');
             exit();
         }
         catch(\Exception $ex)
@@ -111,7 +113,7 @@ class App
         return ($this->path.'Cache/'.(!empty($_filename) ? ($this->instance.'-'.$_filename) : ''));
     }
 
-    public function Config() : LocalCollection
+    public function Config() : Collection
     {
         return $this->config;
     }
@@ -139,11 +141,11 @@ class App
      */
     public function View() : View
     {
-        $this->view = $this->view ?: new View($this->Path());
+        $this->view = $this->view ?: new View($this->path);
         return $this->view;
     }
 
-    public function InstancePath(?string $_suffix = null) : string
+    public function LocalWebPath(?string $_suffix = null) : string
     {
         return ($this->Path($this->instance.'/').(!empty($_suffix) ? $_suffix : ''));
     }
@@ -153,8 +155,8 @@ class App
         return ($this->name.'\\Controllers\\'.\mb_convert_case(\basename($_controller), MB_CASE_TITLE).'Controller');
     }
 
-    public function LocalDb(string $_filename, array $_struct = []) : LocalDb
+    public function DbLocal(string $_filename, array $_struct = []) : ModelCollection
     {
-        return new LocalDb($this, $_filename, $_struct);
+        return new ModelCollection($this, $_filename, $_struct);
     }
 }
