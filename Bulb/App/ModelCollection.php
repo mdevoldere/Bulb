@@ -18,21 +18,6 @@ class ModelCollection extends Collection
         return new ViewModel($_values);
     }
 
-    public function FindAllWithParents()
-    {
-        $r = [];
-
-        foreach ($this->FindAll() as $k => $v)
-        {
-            if(($v['parent'] < 1))
-                $v['childs'] = $this->FindChilds($v['id']);
-
-            $r[$k] = $v;
-        }
-
-        return $r;
-    }
-
     public function FindBy(string $_key, $_value = null) : array
     {
         if(empty($_key))
@@ -63,43 +48,14 @@ class ModelCollection extends Collection
         return $this->FindBy('name', $_name);
     }
 
-    public function FindChilds(int $_parent = 0)
-    {
-        if(empty($_parent))
-            return [];
-
-        $r = [];
-
-        foreach ($this->items as $k => $v)
-        {
-            if(\array_key_exists('parent', $v))
-            {
-                if(($v['parent'] === $_parent))
-                    $r[$k] = $this->items[$k];
-            }
-        }
-
-        return $r;
-    }
-
-    public function Update($_item, $_value = null) : bool
-    {
-        if(\is_array($_item))
-            return $this->UpdateArray($_item);
-        elseif($_item instanceof Model)
-            return $this->UpdateModel($_item);
-
-        return false;
-    }
-
-    public function UpdateArray(array $_item, $_save = true) : bool
+    public function UpdateItem(array $_item, $_save = true) : ?Model
     {
         $_item = $this->GetModel($_item);
 
         return $this->UpdateModel($_item, $_save);
     }
 
-    public function UpdateModel(Model $_model, $_save = true) : bool
+    public function UpdateModel(Model $_model, $_save = true) : ?Model
     {
         if($_model->Validate())
         {
@@ -109,12 +65,12 @@ class ModelCollection extends Collection
             $this->items[$_model->id] = $_model->FindAll();
 
             if($_save === true)
-                return ($this->Save() > 0);
+                return ($this->Save() > 0) ? $_model : null;
 
-            return true;
+            return $_model;
         }
 
-        return false;
+        return null;
     }
 
 

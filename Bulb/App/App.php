@@ -44,13 +44,14 @@ class App
 
         $this->config = new Collection($this->Cache('conf.php'));
         $this->config->Load($this->path.'conf.php');
+        //\exiter($this);
         $this->config->Load();
 
         $this->webPath = $this->config->Find('path');
 
         $this->Route();
 
-        //\exiter($this);
+
     }
 
     public function Run()
@@ -130,7 +131,7 @@ class App
     {
         if($this->route === null)
         {
-            $this->route = new Route($this->Config()->Find('path'), 'url');
+            $this->route = new Route($this->config->Find('path'), 'url');
         }
 
         return $this->route;

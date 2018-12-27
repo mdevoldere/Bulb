@@ -35,7 +35,7 @@ class Http
         if($key === null)
             return !empty($_POST) ? $_POST : [];
 
-        return \array_key_exists($key, $_POST) ? $_POST[$key] : $default;
+        return \array_key_exists($key, $_POST) ? ($_POST[$key]) : $default;
     }
 
     /**

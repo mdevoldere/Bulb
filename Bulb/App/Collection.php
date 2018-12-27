@@ -12,15 +12,16 @@ class Collection
     {
         if(\is_file($_path) && \is_readable($_path))
         {
+
+
             try
             {
                 $a = (require $_path);
-                // exporter($a, 'a');
-                $a = \is_array($a) ? $a : [];
 
+                $a = \is_array($a) ? $a : [];
+                //\exporter($_collection, $_path);
                 if($_collection !== null)
                     $_collection->Update($a);
-
                 return $a;
             }
             catch (\Exception $e)
@@ -65,9 +66,8 @@ class Collection
 
     public function Load(?string $_filename = null) : array
     {
-        if(!empty($_filename))
+        if(empty($_filename))
             $_filename = $this->path;
-
         return !empty($_filename) ? Collection::LoadFile($_filename, $this) : [];
     }
 
@@ -134,6 +134,17 @@ class Collection
      */
     public function Update($_item, $_value = null) : bool
     {
+        if(\is_array($_item))
+        {
+            foreach($_item as $k => $v)
+            {
+                $this->Update($k, $v);
+            }
+
+            return true;
+        }
+
+
         if((null !== ($_item = Validate::Key($_item))))
         {
             $this->items[$_item] = $_value;

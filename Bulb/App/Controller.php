@@ -68,7 +68,7 @@ class Controller
         return $this->app->View()->Render([
             'request' => $this->app->Route()->Route(),
             'response' => $this->vars,
-            'site' => $this->app->Config()->ToArray(),
+            'site' => $this->app->Config()->FindAll(),
             'session' => $_SESSION,
         ]);
     }

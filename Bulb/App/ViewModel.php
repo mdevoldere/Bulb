@@ -11,7 +11,6 @@ class ViewModel extends Model
 
     public $name = null;
 
-    public $parent = 0;
 
     public function Validate() : bool
     {
@@ -21,8 +20,6 @@ class ViewModel extends Model
             return false;
 
         $this->key = \mb_convert_case(Validate::Key($this->name), MB_CASE_LOWER);
-
-        $this->parent = (($this->parent !== null) ? \intval($this->parent) : 0);
 
         return parent::Validate();
     }

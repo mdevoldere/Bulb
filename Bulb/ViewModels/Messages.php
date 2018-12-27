@@ -21,9 +21,9 @@ class Messages extends ModelCollection
         return new Message($_values);
     }
 
-    public function UpdateModel(Model $_model, $_save = true): bool
+    public function UpdateModel(Model $_model, $_save = true): ?Model
     {
-        return (($_model instanceof Message) ? parent::UpdateModel($_model, $_save) : false);
+        return (($_model instanceof Message) ? parent::UpdateModel($_model, $_save) : null);
     }
 
     public function Save() : int
