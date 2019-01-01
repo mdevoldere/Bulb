@@ -7,6 +7,7 @@ namespace Bulb\ViewModels;
 use Bulb\App\App;
 use Bulb\App\Model;
 use Bulb\App\ModelCollection;
+use Bulb\Http\Http;
 
 class Categories extends ModelCollection
 {
@@ -71,6 +72,20 @@ class Categories extends ModelCollection
         }
 
         return $r;
+    }
+
+    public function Remove($_key = null, $_save = true): bool
+    {
+        if(!empty($item = $this->Find($_key)))
+        {
+            if($item['parent'] == 0 && !empty($this->FindChilds($item['id'])))
+            {
+                Http::Session('danger', 'Impossible de supprimer une catégorie qui contient des sous-catégories. Ré-affectez ou supprimez les sous-catégories en 1er.');
+                return false;
+            }
+        }
+
+        return parent::Remove($_key, $_save);
     }
 
 }

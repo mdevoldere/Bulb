@@ -114,13 +114,18 @@ class Collection
 
     /**
      * @param null $_key
+     * @param bool $_save
      * @return bool
      */
-    public function Remove($_key = null): bool
+    public function Remove($_key = null, $_save = true): bool
     {
         if((null !== ($_key = $this->Has($_key))))
         {
             unset($this->items[$_key]);
+
+            if($_save === true)
+                return ($this->Save() > 0);
+
             return true;
         }
 

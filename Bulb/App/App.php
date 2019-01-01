@@ -22,7 +22,7 @@ class App
     /** @var Route */
     protected $route = null;
 
-    /** @var LocalCollection $config */
+    /** @var Collection $config */
     protected $config;
 
     /** @var View */
@@ -50,8 +50,6 @@ class App
         $this->webPath = $this->config->Find('path');
 
         $this->Route();
-
-
     }
 
     public function Run()
@@ -75,6 +73,7 @@ class App
 
             echo $c->{$a}();
             Http::UnsetSession('success');
+            Http::UnsetSession('danger');
             exit();
         }
         catch(\Exception $ex)
@@ -156,8 +155,4 @@ class App
         return ($this->name.'\\Controllers\\'.\mb_convert_case(\basename($_controller), MB_CASE_TITLE).'Controller');
     }
 
-    public function DbLocal(string $_filename, array $_struct = []) : ModelCollection
-    {
-        return new ModelCollection($this, $_filename, $_struct);
-    }
 }

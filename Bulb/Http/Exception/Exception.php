@@ -79,8 +79,8 @@ class Exception extends \Exception
         static::setVar('message', $this->message, $html);
         static::setVar('file', basename($this->file), $html);
         static::setVar('line', $this->line, $html);
-        static::setVar('dump',
-            ((str_replace(["\r\n", "\r", "\n"], '<br>', $this->getTraceAsString().'<a href="#" onclick="Javascript:history.go(-1);">Go Back</a>'))), $html); // $this->getTraceAsString()._exporter(Loader::getLoaded(), '_autoLoad')
+        static::setVar('dump', '', $html);
+          //  ((str_replace(["\r\n", "\r", "\n"], '<br>', $this->getTraceAsString().'<a href="#" onclick="Javascript:history.go(-1);">Go Back</a>'))), $html); // $this->getTraceAsString()._exporter(Loader::getLoaded(), '_autoLoad')
         exit($html);
     }
 
