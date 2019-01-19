@@ -4,13 +4,10 @@
 namespace Bulb\Http;
 
 
-use Bulb\App\Secure;
-
 class Http
 {
     /**
      * Get Item from $_GET or $_GET array if no key specified
-     * returns null if no result
      * @param null|mixed $key
      * @param mixed $default
      * @return mixed|null
@@ -25,7 +22,6 @@ class Http
 
     /**
      * Get Item from $_POST or $_POST array if no key specified
-     * returns null if no result
      * @param null|mixed $key
      * @param mixed $default
      * @return mixed|null
